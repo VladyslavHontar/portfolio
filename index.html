@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Portfolio</title>
+    <link rel="stylesheet" href="css/styles.css">
+
+</head>
+<body>
+  <h1>Vladyslav Hontar</h1>
+  <h2 class="quick-bio">Quick Bio</h2>
+  <p>If you want to see me bragging about myself in more detail, <a onclick="openPDF()" href="">here is my cv</a>.</p>
+    
+    <div class="intro-section">
+      <div class="picture">
+      <img src="img/pfp.png" class="pfp">
+      </div>
+      <div class="text">
+      <p class="intro">Im 18 years old student with experience as hardware engineer. For now im studying in Technologiacal University of the Shannon and working on my Java software development skills as much as I can in my free time. At the moment I`m working on a Library ERP project about which I will talk about later within the same page. Have a desire in learning ander hood part of differnet technologies. Also like to present different presentations and projects in front of the people explaining some technical stuff.</p>
+      </div>
+    </div>
+
+    <div class="email">
+      <h2>Email</h2>
+      <p>I usally respond to all emails within 24 hours.</p>
+      <a href="#" id="contactLink">Contact me</a>
+
+      <!-- Hidden pop-up window -->
+      <div id="popup">
+        <h2>Contact Form</h2>
+        <form id="contactForm">
+          <textarea name="message" placeholder="" required></textarea>
+          <button type="submit">Send</button>
+        </form>
+      </div>
+
+    </div>
+
+    <div class="social-networks-section">
+      <h2>Social Networks</h2>
+      <p>I don't do social media but you can use them as contacts</p>
+      <div class="social-networks">
+        <h3>Telegram</h3>
+        <ul>
+          <li>
+            <a href="https://t.me/w3w1lls33" class="media">@w3w1lls33</a>
+          </li>
+        </ul>
+        <h3>Instagram</h3>
+        <ul>
+          <li>
+            <a href="https://www.instagram.com/vladhontar/" class="media">@vladhontar</a>
+          </li>
+        </ul>
+        <h3>LinkidIn</h3>
+        <ul>
+          <li>
+            <a href="https://www.linkedin.com/in/vladyslav-hontar-108155243/" class="media">@VladyslavHontar</a>
+          </li>
+        </ul>
+      </div>  
+    </div>  
+
+
+    <div class="projects-section">
+      <h2>Projects</h2>
+      <p>Here are some of my projects:</p>
+      <div class="projects">
+        <h3 class="name">Library ERP</h3>
+        <p> The main idea of this project is to make a GUI and web site application which will be able to work with SQL databases, will be fully customizeble to use it for any needs.</p>
+        <p><i>Note: </i>Library ERP is a project that I`m working on at the moment. <u>For now the functionality of this application is very limited, doesn't have any sort of GUI or customization</u>. Our capabilities are limited by our knowledge.</p>
+        <p>GitHub repo: <a href="https://github.com/VladyslavHontar/LibraryERP">LibraryERP</a></p>
+        <img src="img/projects/Screenshot 2023-06-04 at 13.34.23.png" class="library-screenshot">
+        <p>I'm doing this application in OOP style sticking to <i>low coupling & high cohision</i> and <i>SOLID</i> rules.</p>
+        <p>The whole functionality available at the moment is represented on the diagram bellow.</p>
+        <img src="img/projects/use_cases.png" class="diagram">
+      </div>
+    </div>
+
+    <div class="public-talks-section">
+      <h2>Public Talks</h2>
+      
+      <p>The talk are arranged with themes and have chronological structure. The ones are on the top are the most recent ones. Here are some of my public talks:</p>
+      <div class="talks">
+        <h3 class="name">How does v-sync, g-sync, free-sync work</h3>
+        <p><a href="https://studentait-my.sharepoint.com/:p:/g/personal/a00314279_student_ait_ie/EaoSuT75cuVDkTgJZB-E-coBiHWslt2fbI3UfgTj2ZOTqg?e=ui8yNC">Slides</a> (Eng) <img src="img/languages/us.svg" class="languages"></p>
+        <p>Here is a presentation that I made for my university on how does different type of sync works inside any game. Presented in 2023 in TUS for engineering students. Got a skill badge for presenting from TUS (check LinkidIn certification group).</p> 
+      </div>
+
+      <hr>
+
+      <div class="talks">
+        <h3 class="name">POT from inside</h3>
+        <p><a href="https://studentait-my.sharepoint.com/:p:/g/personal/a00309414_student_ait_ie/EUeswTGATExMrpGw9k-Fc5QB-wyXK84BsgK59bZYfEOM-Q?e=4w7NpF">Slides</a> (Eng) <img src="img/languages/us.svg" class="languages"></p>
+        <p>This presentation is maded with my classmates for the first year of uni. The presentation covers how does potentiometer works, common use cases etc. Presented in 2022 in TUS in class.</p> 
+      </div>
+
+      <hr>
+
+      <div class="talks">
+        <h3 class="name">Data integrity</h3>
+        <p><a href="https://docs.google.com/presentation/d/1J23yChZU0T1nzSn0ay4tQ4N7jZMFsO6z/edit?usp=share_link&ouid=108153664164785351495&rtpof=true&sd=true">Slides</a> (Ukr) <img src="img/languages/ua.svg" class="languages"></p>
+        <p><i>Note: </i>this presentation is for entry level students. The presentation covers hash functions, checksum and few other topics. Not much to talk about, really small presentation used to present it at the end of 2021 in Kyiv College of Communication.</p>
+      </div>
+
+      <footer>
+        <br>
+        <br>
+        <br>
+        <p class="note">This portfolio will be updated through my career. Ill try to post things here as much as I can.</p>
+      </footer>
+
+      <script>
+        document.getElementById('contactLink').addEventListener('click', function(event) {
+        event.preventDefault();
+    
+        var isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
+    
+        if (isMac) {
+          var mailtoLink = 'mailto:hontarvladie@gmail.com?subject=Contact%20Form&body=';
+          window.location.href = mailtoLink;
+        } else {
+          window.open('https://mail.google.com/');
+        }
+        });
+
+        function openPDF() {
+          window.open("pdf/cv.pdf", "_blank");
+        }
+      </script>
+</body>
+</html>
