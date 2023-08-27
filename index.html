@@ -69,9 +69,15 @@
         <p> The main idea of this project is to make a GUI and web site application which will be able to work with SQL databases, will be fully customizeble to use it for any needs.</p>
         <p><i>Note: </i>Library ERP is a project that I`m working on at the moment. <u>For now the functionality of this application is very limited, <s>doesn't have any sort of GUI</s> or customization</u>. Our capabilities are limited by our knowledge.</p>
         <p>GitHub repo: <a href="https://github.com/VladyslavHontar/LibraryERP">LibraryERP</a></p>
-        <img src="img/projects/LibraryERP/Screenshot 2023-08-10 at 19.46.48.png" class="library-screenshot">
-        <img src="img/projects/LibraryERP/Screenshot 2023-08-10 at 19.46.16.png" class="library-screenshot">
-        <img src="img/projects/LibraryERP/Screenshot 2023-08-10 at 19.43.53.png" class="library-screenshot">
+        <div class="blur-load library-pictures" style="background-image: url(img/projects/LibraryERP/Screenshot_2023-08-10_at_19.46.48_small.png);">
+          <img src="img/projects/LibraryERP/Screenshot 2023-08-10 at 19.46.48.png" class="library-screenshot" loading="lazy">
+        </div>
+        <div class="blur-load library-pictures" style="background-image: url(img/projects/LibraryERP/Screenshot_2023-08-10_at_19.46.16_small.png);">
+          <img src="img/projects/LibraryERP/Screenshot 2023-08-10 at 19.46.16.png" class="library-screenshot" loading="lazy">
+        </div>
+        <div class="blur-load library-pictures" style="background-image: url(img/projects/LibraryERP/Screenshot_2023-08-10_at_19.43.53_small.png);">
+          <img src="img/projects/LibraryERP/Screenshot 2023-08-10 at 19.43.53.png" class="library-screenshot" loading="lazy">
+        </div>
         <p>I tried to make the whole application with <i>mvc design pattern</i> so its easy to make changes and make updates to it.</p>
         <p>The whole functionality available at the moment is represented on the diagram bellow.</p>
         <img src="img/projects/LibraryERP/use_cases.png" class="diagram">
@@ -105,7 +111,6 @@
         <p><a href="https://docs.google.com/presentation/d/1J23yChZU0T1nzSn0ay4tQ4N7jZMFsO6z/edit?usp=share_link&ouid=108153664164785351495&rtpof=true&sd=true">Slides</a> (Ukr) <img src="img/languages/ua.svg" class="languages"></p>
         <p><i>Note: </i>this presentation is for entry level students. The presentation covers hash functions, checksum and few other topics. Not much to talk about, really small presentation used to present it at the end of 2021 in Kyiv College of Communication.</p>
       </div>
-
       <footer>
         <br>
         <br>
@@ -113,6 +118,19 @@
         <p class="note">This portfolio will be updated through my career. Ill try to post things here as much as I can.</p>
       </footer>
 
+      <script>
+        const blurredImageDivs = document.querySelectorAll(".blur-load");
+      
+        blurredImageDivs.forEach(blurredImageDiv => {
+          const img = blurredImageDiv.querySelector("img");
+      
+          img.addEventListener("load", () => {
+            blurredImageDiv.classList.add("loaded");
+          });
+        });
+      </script>
+      
+      
       <script>
         document.getElementById('contactLink').addEventListener('click', function(event) {
         event.preventDefault();
