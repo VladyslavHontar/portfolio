@@ -145,3 +145,9 @@ p {
   margin-bottom: 10px;
   width: 100%;
 }
+@media (max-width: 600px) {
+  body{
+    margin-left: 5%;
+    margin-right: 5%;
+  }
+}
