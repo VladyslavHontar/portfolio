@@ -133,21 +133,27 @@
       
       <script>
         document.getElementById('contactLink').addEventListener('click', function(event) {
-        event.preventDefault();
-    
-        var isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
-    
-        if (isMac) {
-          var mailtoLink = 'mailto:hontarvladie@gmail.com?subject=Contact%20Form&body=';
-          window.location.href = mailtoLink;
-        } else {
-          window.open('https://mail.google.com/');
-        }
+          event.preventDefault();
+      
+          var isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
+      
+          if (isMac) {
+            var mailtoLink = 'mailto:hontarvladie@gmail.com?subject=Contact%20Form&body=';
+            window.location.href = mailtoLink;
+          } else {
+            var emailWindow = window.open('mailto:hontarvladie@gmail.com?subject=Contact%20Form&body=');
+            if (emailWindow && !emailWindow.closed) {
+              emailWindow.focus();
+            } else {
+              window.open('https://mail.google.com/');
+            }
+          }
         });
-
+      
         function openPDF() {
           window.open("pdf/CV.pdf", "_blank");
         }
       </script>
+      
 </body>
 </html>
