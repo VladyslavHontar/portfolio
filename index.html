@@ -73,8 +73,8 @@
         <p class="note" style="font-size: smaller">threads threads threads ram ram ram...</p>
         <ul>
           <p>Worker config:</p>
-          <li><p>Lets person define different wallets to be used by different workers.</p></li>
-          <li><p>Lets person define max transaction age (by default if solana transaction is not landed in 150 slots its being failed. Solana doesnt provide overriding MaxTxAge variable, but we still did it.).</p></li>
+          <li><p>Lets user define different wallets to be used by different workers.</p></li>
+          <li><p>Lets user define max transaction age (by default if solana transaction is not landed in 150 slots its being failed. Solana doesnt provide overriding MaxTxAge variable, but we still did it.).</p></li>
           <li><p>fetchInstructionTimeout allows your bot to stop executing a potentially profitable transaction if it took too long to fetch instructions, which would likely prevent a profitable trade from happening and you would still have to pay a fee for it.</p></li>
           <li><p>No need to look for tokens and update includeMints.json as bot does it for you.</p></li>
           <li><p>A lot of performance enhances, reducing time before transaction execution and even time to land transaction. (No details for a reason)</p></li>
@@ -157,9 +157,9 @@
       <script>
         document.getElementById('contactLink').addEventListener('click', function(event) {
           event.preventDefault();
-      
+
           var isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
-      
+
           if (isMac) {
             var mailtoLink = 'mailto:hontarvladie@gmail.com?subject=Contact%20Form&body=';
             window.location.href = mailtoLink;
