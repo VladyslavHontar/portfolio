@@ -1,6 +1,6 @@
 @font-face {
   font-family: 'Geologica';
-  src: url("../fonts/Geologica/Geologica-VariableFont_CRSV\,SHRP\,slnt\,wght.ttf");
+  src: url("../fonts/Geologica/Geologica-VariableFont_CRSV,SHRP,slnt,wght.ttf");
 }
 body {
   font-family: 'Geologica';
@@ -107,6 +107,13 @@ p {
 .library-screenshot {
   width: 100%;
   position: relative;
+}
+.solana-arb-screenshot {
+  width: 60%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0 auto;
 }
 .diagram {
   margin-top: 4%;

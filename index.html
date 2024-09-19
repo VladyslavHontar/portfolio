@@ -12,10 +12,10 @@
     
     <section class="intro-section">
       <div class="picture">
-        <img src="img/pfp.png" class="pfp">
+        <img src="img/pfp.jpg" class="pfp">
       </div>
       <div class="text">
-        <p class="intro">Im 19 years old student with experience as hardware engineer. For now im studying at Technologiacal University of the Shannon and working on my Java software development skills as much as I can in my free time. At the moment I`m working on a Library ERP project about which I will talk later within the same page. Have a desire in learning under hood part of differnet technologies. Also like to present different presentations and projects in front of the people explaining some technical stuff.</p>
+        <p class="intro">Im 20 years old student with experience as hardware engineer. For now im studying at Technologiacal University of the Shannon and working on my software development skills as much as I can in my free time. At the moment I`m working on a Solana Arb project about which I will talk later within the same page. Have a desire in learning under hood part of differnet technologies. Also like to present different presentations and projects in front of the people explaining some technical stuff.</p>
       </div>
     </section>
   <section class="contact">
@@ -31,43 +31,64 @@
           <textarea name="message" placeholder="" required></textarea>
           <button type="submit">Send</button>
         </form>
-      </section>
+      </div>
+    </section>
   </section>
-    </div>
 
-    <div class="social-networks-section">
-      <h2>Social Networks</h2>
-      <p>I don't do social media but you can use them as contacts</p>
-      <div class="social-networks">
-        <h3>Telegram</h3>
-        <ul>
-          <li>
-            <a href="https://t.me/w3w1lls33" class="media">@w3w1lls33</a>
-          </li>
-        </ul>
-        <h3>Instagram</h3>
-        <ul>
-          <li>
-            <a href="https://www.instagram.com/vladhontar/" class="media">@vladhontar</a>
-          </li>
-        </ul>
-        <h3>LinkidIn</h3>
-        <ul>
-          <li>
-            <a href="https://www.linkedin.com/in/vladyslav-hontar-108155243/" class="media">@VladyslavHontar</a>
-          </li>
-        </ul>
-      </div>  
-    </div>  
+<!--    <div class="social-networks-section">-->
+<!--      <h2>Social Networks</h2>-->
+<!--      <p>I don't do social media but you can use them as contacts</p>-->
+<!--      <div class="social-networks">-->
+<!--        <h3>Telegram</h3>-->
+<!--        <ul>-->
+<!--          <li>-->
+<!--            <a href="https://t.me/w3w1lls33" class="media">@w3w1lls33</a>-->
+<!--          </li>-->
+<!--        </ul>-->
+<!--        <h3>Instagram</h3>-->
+<!--        <ul>-->
+<!--          <li>-->
+<!--            <a href="https://www.instagram.com/vladhontar/" class="media">@vladhontar</a>-->
+<!--          </li>-->
+<!--        </ul>-->
+<!--        <h3>LinkidIn</h3>-->
+<!--        <ul>-->
+<!--          <li>-->
+<!--            <a href="https://www.linkedin.com/in/vladyslav-hontar-108155243/" class="media">@VladyslavHontar</a>-->
+<!--          </li>-->
+<!--        </ul>-->
+<!--      </div>  -->
+<!--    </div>  -->
 
 
     <div class="projects-section">
       <h2>Projects</h2>
       <p>Here are some of my projects:</p>
       <div class="projects">
+        <h3 class="name">Solana Arb</h3>
+        <p>Automated solana arbitrage bot. At the moment works by retrieving data from self deployed Jupiter API (we as a team want to move away from this concept and get token prices on our own). Our bot is better than most shared known bots, by performance and bringing new features.</p>
+<!--        <p><i>Note: </i>Solana Arb bot is a project that we are working on at the moment in a group of three people.<u>This project</u>.</p>-->
+        <p>GitHub repo: <a href="https://github.com/SergeiLitvinov03/ArbitrageMillion/tree/main">PRIVATE FOR A REASON</a> <u></u> </p>
+        <p style="text-align: center">Why our bot is better?</p>
+        <p class="note" style="font-size: smaller">threads threads threads ram ram ram...</p>
+        <ul>
+          <p>Worker config:</p>
+          <li><p>Lets person define different wallets to be used by different workers.</p></li>
+          <li><p>Lets person define max transaction age (by default if solana transaction is not landed in 150 slots its being failed. Solana doesnt provide overriding MaxTxAge variable, but we still did it.).</p></li>
+          <li><p>fetchInstructionTimeout allows your bot to stop executing a potentially profitable transaction if it took too long to fetch instructions, which would likely prevent a profitable trade from happening and you would still have to pay a fee for it.</p></li>
+          <li><p>No need to look for tokens and update includeMints.json as bot does it for you.</p></li>
+          <li><p>A lot of performance enhances, reducing time before transaction execution and even time to land transaction. (No details for a reason)</p></li>
+        </ul>
+
+        <div class="blur-load library-pictures">
+          <img src="img/projects/SolanaArb/Screenshot%202024-09-19%20192345.png" class="solana-arb-screenshot" loading="lazy">
+        </div>
+        <h3 class="name">Recent updates:</h3>
+        <ul><li><p>If I will list every update this page is going to be endless...</p></li></ul>
+        <br>
+
         <h3 class="name">Library ERP</h3>
         <p> The main idea of this project is to make a GUI and web site application which will be able to work with SQL databases, will be fully customizeble to use it for any needs.</p>
-        <p><i>Note: </i>Library ERP is a project that I`m working on at the moment. <u>For now the functionality of this application is very limited, <s>doesn't have any sort of GUI</s> or customization</u>. Our capabilities are limited by our knowledge.</p>
         <p>GitHub repo: <a href="https://github.com/VladyslavHontar/LibraryERP">LibraryERP</a></p>
         <div class="blur-load library-pictures" style="background-image: url(img/projects/LibraryERP/Screenshot_2023-08-10_at_19.46.48_small.png);">
           <img src="img/projects/LibraryERP/Screenshot 2023-08-10 at 19.46.48.png" class="library-screenshot" loading="lazy">
@@ -156,6 +177,6 @@
           window.open("pdf/CV.pdf", "_blank");
         }
       </script>
-      
+    </div>
 </body>
 </html>
