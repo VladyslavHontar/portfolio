@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Terminal Portfolio</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<!-- ON/OFF Button -->
+<button id="power-button">OFF</button>
+
+<!-- Terminal Window -->
+<div id="terminal">
+  <!-- Boot Animation -->
+  <div id="boot-screen"></div>
+
+  <div id="loading-bar-container">
+    <div id="loading-bar"></div>
+  </div>
+
+  <!-- Terminal Output -->
+  <div id="output"></div>
+
+  <!-- Terminal Input -->
+  <div id="input-line">
+    <span class="prompt">~ $</span>
+    <input type="text" id="command-input" autofocus autocomplete="off" spellcheck="false" />
+  </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>

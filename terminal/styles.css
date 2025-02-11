@@ -1,0 +1,114 @@
+/* Ensure full-screen experience */
+html, body {
+    overflow: hidden;
+    height: 100%;
+}
+
+/* Terminal styling */
+body {
+    background-color: black;
+    color: white;
+    font-family: monospace;
+    margin: 0;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    flex-direction: column;
+}
+
+/* Terminal Frame (Always Visible, Just No Prompt Initially) */
+/* Terminal Frame (Always Visible) */
+#terminal {
+    width: 55vw;
+    height: 85vh;
+    overflow-y: auto;
+    border: 2px solid white;
+    padding: 10px;
+    display: block;
+    position: relative;
+}
+
+/* Booting screen */
+#boot-screen {
+    display: none;
+    color: #0f0;
+    font-family: monospace;
+    white-space: pre;
+    font-size: 14px;
+    padding: 20px;
+}
+
+/* ❌ Hide terminal content when OFF */
+.terminal-off #output,
+.terminal-off #input-line {
+    display: none !important;
+}
+
+/* ✅ Show terminal content when ON */
+.terminal-on #output,
+.terminal-on #input-line {
+    display: flex;
+}
+
+/* ON/OFF Button Styling */
+#power-button {
+    position: absolute;
+    top: 10px;
+    right: 20px;
+    background: red;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    font-size: 14px;
+    cursor: pointer;
+    font-family: monospace;
+}
+
+/* Loading Bar Container */
+#loading-bar-container {
+    width: 95%;
+    bottom: 1vh;
+    height: 5px;
+    background: rgba(255, 255, 255, 0.2);
+    position: absolute;
+    transform: translateX(-50%);
+    left: 50%;
+    display: none;
+}
+
+/* Loading Bar (progress effect) */
+#loading-bar {
+    height: 100%;
+    width: 0;
+    background: limegreen;
+    transition: width 0.8s ease-in-out;
+}
+
+#power-button.on {
+    background: green;
+}
+
+/* Keep prompt and input aligned */
+#input-line {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.prompt {
+    color: #0f0;
+    white-space: nowrap;
+}
+
+#command-input {
+    background: transparent;
+    border: none;
+    color: white;
+    font-family: monospace;
+    outline: none;
+    width: 100%;
+    caret-color: white;
+    font-size: 14px;
+}
