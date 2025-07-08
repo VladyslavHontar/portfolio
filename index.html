@@ -15,12 +15,12 @@
         <img src="img/pfp.jpg" class="pfp">
       </div>
       <div class="text">
-        <p class="intro">I`m 20 years old student with experience as hardware engineer. For now I`m studying at Technological University of the Shannon and working on my software development skills as much as I can in my free time. At the moment I`m working on a Solana Arb project about which I will talk later within the same page. Have a desire in learning under hood part of differnet technologies. Also like to present different presentations and projects in front of the people explaining some technical stuff.</p>
+        <p class="intro">I`m 20 years old student with experience as software and hardware engineer. For now I`m studying at Technological University of the Shannon and working on my software development skills as much as I can in my free time. At the moment I`m working on a Solana Arb project about which I will talk later within the same page. Have a desire in learning under hood part of differnet technologies. Also like to present different presentations and projects in front of the people explaining some technical stuff.</p>
       </div>
     </section>
   <section class="contact">
     <section class="email">
-      <h2>Email</h2>
+      <h1>Email</h1>
       <p>I usally respond to all emails within 24 hours.</p>
       <a href="#" id="contactLink">Contact me</a>
 
@@ -42,7 +42,7 @@
 <!--        <h3>Telegram</h3>-->
 <!--        <ul>-->
 <!--          <li>-->
-<!--            <a href="https://t.me/w3w1lls33" class="media">@w3w1lls33</a>-->
+<!--            <a href="https://t.me/uxsbo" class="media">@uxsbo</a>-->
 <!--          </li>-->
 <!--        </ul>-->
 <!--        <h3>Instagram</h3>-->
@@ -62,42 +62,119 @@
 
 
     <div class="projects-section">
-      <h2>Projects</h2>
+      <h1>Projects</h1>
       <p>Here are some of my projects:</p>
       <div class="projects">
-        <h3 class="name">Solana Arb</h3>
-        <p>Automated solana arbitrage bot. At the moment works by retrieving data from self deployed Jupiter API (we as a team want to move away from this concept and get token prices on our own). Our bot is better than most shared known bots, by performance and bringing new features.</p>
-<!--        <p><i>Note: </i>Solana Arb bot is a project that we are working on at the moment in a group of three people.<u>This project</u>.</p>-->
-        <p>GitHub repo: <a href="https://github.com/SergeiLitvinov03/ArbitrageMillion/tree/main">PRIVATE FOR A REASON</a> <u></u> </p>
-        <p style="text-align: center">Why is our bot better?</p>
-        <p class="note" style="font-size: smaller">threads threads threads ram ram ram...</p>
-        <ul>
-          <p>Worker config:</p>
-          <li><p>Lets user define different wallets to be used by different workers.</p></li>
-          <li><p>Lets user define max transaction age (by default if solana transaction is not landed in 150 slots its being failed. Solana doesnt provide overriding MaxTxAge variable, but we still did it.).</p></li>
-          <li><p>fetchInstructionTimeout allows your bot to stop executing a potentially profitable transaction if it took too long to fetch instructions, which would likely prevent a profitable trade from happening and you would still have to pay a fee for it.</p></li>
-          <li><p>No need to look for tokens and update includeMints.json as bot does it for you.</p></li>
-          <li><p>A lot of performance enhances, reducing time before transaction execution and even time to land transaction. (No details for a reason)</p></li>
-        </ul>
 
-        <div class="blur-load library-pictures">
-          <img src="img/projects/SolanaArb/Screenshot%202024-09-19%20192345.png" class="solana-arb-screenshot" loading="lazy">
-        </div>
-        <h3 class="name">Recent updates:</h3>
-        <ul><li><p>If I will list every update this page is going to be endless...</p></li></ul>
+        <h3 class="name">EQUI SWAP</h3>
+        <p>Aggregator/Swaping tool/Wallet manager</p>
         <br>
+        <p>Pitch: <a href="https://youtu.be/jxKcVsSRQJU">Equi Swap - Pitch 2025</a></p>
+        <p>GitHub repo: <a href="https://github.com/equilabs-xyz/equi-swap">EQUI SWAP</a></p>
+        <div class="image-grid">
+          <div class="blur-load library-pictures">
+            <img src="img/projects/EquiSwap/Screenshot%202025-07-08%20125025.png" class="library-screenshot" loading="lazy">
+          </div>
+          <div class="blur-load library-pictures">
+            <img src="img/projects/EquiSwap/Screenshot%202025-07-08%20125149.png" class="library-screenshot" loading="lazy">
+          </div>
+          <div class="blur-load library-pictures">
+            <img src="img/projects/EquiSwap/Screenshot%202025-07-08%20131741.png" class="library-screenshot" loading="lazy">
+          </div>
+          <div class="blur-load library-pictures">
+            <img src="img/projects/EquiSwap/Screenshot%202025-07-08%20131701.png" class="library-screenshot" loading="lazy">
+          </div>
+        </div>
+        <p>We use our own <i>indexer </i> with microservice architecture. Each user is handled in a new thread with indexer as a separate service</p>
+        <p>Tech diagram</p>
+        <div class="blur-load library-pictures">
+          <img src="img/projects/EquiSwap/Screenshot%202025-07-08%20131412.png" class="library-screenshot" loading="lazy">
+        </div>
+        <h3 class="updates">Recent updates:</h3>
+        <ul><li><p>25 Jun 2025: Private beta.</p></li></ul>
+        <br>
+        <hr>
+
+        <h3 class="name">AI assistant ESP32</h3>
+        <p>Small (6x3cm) portable device which you can talk to while holding the pressure sensor and get a response on display</p>
+        <p>Device connects to a phone with BLE and requires a simple android app which works as a communicator between device and server, so you dont need to connect this device to a wifi or buy separate sim card</p>
+        <div class="image-grid">
+          <div class="blur-load library-pictures">
+            <img src="img/projects/AIAssistant/photo_2025-07-08_13-52-10.jpg" class="library-screenshot" loading="lazy">
+          </div>
+          <div class="blur-load library-pictures">
+            <img src="img/projects/AIAssistant/photo_2025-07-08_13-52-17.jpg" class="library-screenshot" loading="lazy">
+          </div>
+        </div>
+        <br><br>
+        <hr>
+
+        <div class="project-toggle-wrapper">
+          <h3 class="name">Solana Arb</h3>
+          <p>GitHub repo: <a href="https://github.com/equilabs-xyz">PRIVATE FOR A REASON</a></p>
+          <ul>
+            <li><p>Software works by having indexer which monitors blockchain calculates prices every time it receives an update from gRPC.</p></li>
+            <li><p>Software has its own simulation service so there is no need to make any API calls which minimizes the delay.</p></li>
+            <li><p>Deployed program recalculates the given transaction to check if any changes happen during transaction landing.</p></li>
+            <li><p>Made in rust to maximize performance.</p></li>
+          </ul>
+
+          <a href="javascript:void(0)" id="toggleSolanaArb" onclick="toggleSolanaArb()" style="display: block; text-align: center; color: #007bff; text-decoration: underline; cursor: pointer;">
+            Show More (old updates)
+          </a>
+          <div id="solanaArbContent" style="display: none;">
+            <p>(Q2 2024) At the moment works by retrieving data from self deployed Jupiter API (we as a team want to move away from this concept and get token prices on our own). Our bot is better than most known shared bots, by performance and bringing new features.</p>
+            <p style="text-align: center">Why is our bot better?</p>
+            <p class="note" style="font-size: smaller">threads threads threads ram ram ram...</p>
+            <ul>
+              <p>Worker config:</p>
+              <li><p>Lets user define different wallets to be used by different workers.</p></li>
+              <li><p>Lets user define max transaction age (by default if solana transaction is not landed in 150 slots its being failed. Solana doesnt provide overriding MaxTxAge variable, but we still did it.).</p></li>
+              <li><p>fetchInstructionTimeout allows your bot to stop executing a potentially profitable transaction if it took too long to fetch instructions...</p></li>
+              <li><p>No need to look for tokens and update includeMints.json as bot does it for you.</p></li>
+              <li><p>A lot of performance enhances, reducing time before transaction execution and even time to land transaction. (No details for a reason)</p></li>
+            </ul>
+            <div class="blur-load library-pictures">
+              <img src="img/projects/SolanaArb/Screenshot%202024-09-19%20192345.png" class="solana-arb-screenshot" loading="lazy">
+            </div>
+          </div>
+        </div>
+        <br>
+        <hr>
+
+        <h3 class="name">SEEFOOD</h3>
+        <p>A mobile app that uses AI to detect whether a given food item is a hotdog or not a hotdog. Originally a fun parody project, it demonstrates skills in machine learning, image classification, and mobile development.</p>
+        <p>UI mimics the original app from the <i>HBO series Silicon Valley</i></p>
+        <div class="ph-image-grid">
+          <div class="blur-load library-pictures">
+            <img src="img/projects/SEEFOOD/photo_2025-07-08_14-07-47.jpg" class="library-screenshot" loading="lazy">
+          </div>
+          <div class="blur-load library-pictures">
+            <img src="img/projects/SEEFOOD/photo_2025-07-08_14-07-50.jpg" class="library-screenshot" loading="lazy">
+          </div>
+          <div class="blur-load library-pictures">
+            <img src="img/projects/SEEFOOD/photo_2025-07-08_14-10-34.jpg" class="library-screenshot" loading="lazy">
+          </div>
+          <div class="blur-load library-pictures">
+            <img src="img/projects/SEEFOOD/photo_2025-07-08_14-12-23.jpg" class="library-screenshot" loading="lazy">
+          </div>
+        </div>
+        <br><br>
+        <hr>
 
         <h3 class="name">Library ERP</h3>
         <p> The main idea of this project is to make a GUI and web site application which will be able to work with SQL databases, will be fully customizeble to use it for any needs.</p>
         <p>GitHub repo: <a href="https://github.com/VladyslavHontar/LibraryERP">LibraryERP</a></p>
-        <div class="blur-load library-pictures" style="background-image: url(img/projects/LibraryERP/Screenshot_2023-08-10_at_19.46.48_small.png);">
-          <img src="img/projects/LibraryERP/Screenshot 2023-08-10 at 19.46.48.png" class="library-screenshot" loading="lazy">
-        </div>
-        <div class="blur-load library-pictures" style="background-image: url(img/projects/LibraryERP/Screenshot_2023-08-10_at_19.46.16_small.png);">
-          <img src="img/projects/LibraryERP/Screenshot 2023-08-10 at 19.46.16.png" class="library-screenshot" loading="lazy">
-        </div>
-        <div class="blur-load library-pictures" style="background-image: url(img/projects/LibraryERP/Screenshot_2023-08-10_at_19.43.53_small.png);">
-          <img src="img/projects/LibraryERP/Screenshot 2023-08-10 at 19.43.53.png" class="library-screenshot" loading="lazy">
+        <div class="image-grid">
+          <div class="blur-load library-pictures">
+            <img src="img/projects/LibraryERP/Screenshot 2023-08-10 at 19.46.48.png" style="box-shadow: none;" class="library-screenshot" loading="lazy">
+          </div>
+          <div class="blur-load library-pictures">
+            <img src="img/projects/LibraryERP/Screenshot 2023-08-10 at 19.46.16.png" style="box-shadow: none;" class="library-screenshot" loading="lazy">
+          </div>
+          <div class="blur-load library-pictures">
+            <img src="img/projects/LibraryERP/Screenshot 2023-08-10 at 19.43.53.png" style="box-shadow: none;" class="library-screenshot" loading="lazy">
+          </div>
         </div>
         <p>I tried to make the whole application with <i>mvc design pattern</i> so its easy to make changes and make updates to it.</p>
         <p>The whole functionality available at the moment is represented on the diagram bellow.</p>
@@ -108,7 +185,7 @@
     </div>
 
     <div class="public-talks-section">
-      <h2>Public Talks</h2>
+      <h1>Public Talks</h1>
       
       <p>The talks are arranged with themes and have chronological structure. The ones are on the top are the most recent ones. Here are some of my public talks:</p>
       <div class="talks">
@@ -155,6 +232,19 @@
       
       
       <script>
+        function toggleSolanaArb() {
+          const content = document.getElementById("solanaArbContent");
+          const button = document.getElementById("toggleSolanaArb");
+
+          if (content.style.display === "none") {
+            content.style.display = "block";
+            button.textContent = "Show Less";
+          } else {
+            content.style.display = "none";
+            button.textContent = "Show More";
+          }
+        }
+
         document.getElementById('contactLink').addEventListener('click', function(event) {
           event.preventDefault();
 
