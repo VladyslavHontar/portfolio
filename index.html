@@ -129,10 +129,11 @@
               <img src="img/projects/SolanaArb/Screenshot%202025-09-19%20154429.png" class="library-screenshot" loading="lazy" style="transform-origin: top left; width: 30%; height: auto;">
             </div>
           </div>
-
+          <br><br>
           <a href="javascript:void(0)" id="toggleSolanaArb" onclick="toggleSolanaArb()" style="display: block; text-align: center; color: #007bff; text-decoration: underline; cursor: pointer;">
             Show More (old updates)
           </a>
+          <br>
           <div id="solanaArbContent" style="display: none;">
             <p>(Q2 2024) At the moment works by retrieving data from self deployed Jupiter API (we as a team want to move away from this concept and get token prices on our own). Our bot is better than most known shared bots, by performance and bringing new features.</p>
             <p style="text-align: center">Why is our bot better?</p>
@@ -165,6 +166,8 @@
           </div>
         </div>
         <br><br>
+        <p style="text-align: center;"><a href="assistantxyz.html" onclick="saveScrollPosition()">Demo page</a></p>
+        <br>
         <hr>
 
         <h3 class="name">SEEFOOD</h3>
@@ -343,6 +346,22 @@
         function openPDF() {
           window.open("pdf/CV.pdf", "_blank");
         }
+
+        function saveScrollPosition() {
+          localStorage.setItem('portfolioScrollPosition', window.pageYOffset);
+        }
+
+        // Restore scroll position when returning from assistantxyz page
+        window.addEventListener('load', function() {
+          const savedPosition = localStorage.getItem('portfolioScrollPosition');
+          if (savedPosition) {
+            // Add a small delay to ensure images are loaded
+            setTimeout(function() {
+              window.scrollTo(0, parseInt(savedPosition));
+              localStorage.removeItem('portfolioScrollPosition');
+            }, 100);
+          }
+        });
       </script>
     </div>
 </body>
