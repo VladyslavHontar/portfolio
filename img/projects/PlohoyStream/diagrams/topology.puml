@@ -1,0 +1,52 @@
+@startuml topology
+' Phone -> media server -> OBS, plus the WebSocket control channel back to OBS.
+skinparam backgroundColor transparent
+skinparam shadowing false
+skinparam note {
+  BackgroundColor FILL
+  BorderColor STROKE
+  FontColor TEXT
+}
+skinparam defaultFontName Helvetica
+skinparam defaultFontSize 13
+skinparam roundCorner 8
+skinparam ArrowColor STROKE
+skinparam ArrowFontColor TEXT
+skinparam rectangle {
+  BackgroundColor FILL
+  BorderColor STROKE
+  FontColor TEXT
+}
+skinparam node {
+  BackgroundColor TRANSPARENT
+  BorderColor STROKE
+  FontColor MUTED
+}
+
+node "Phone — mobile network" {
+  rectangle "PlohoyStream\ncapture · encode · SRT sender" as phone
+}
+
+node "Server — VPS or LAN box" {
+  rectangle "SRS / MediaMTX\nSRT + RTMP ingest, republish" as server
+}
+
+node "Desktop" {
+  rectangle "OBS Studio\nmedia source pulls the feed" as obs
+  rectangle "obs-websocket\nscene control" as ws
+}
+
+rectangle "Twitch / YouTube\nor any ingest" as platform
+
+phone -right-> server : **SRT** over UDP\nstreamid + latency budget\nrecovers loss, keeps timing
+server -right-> obs : SRT or RTMP pull\ninside the studio network
+obs -right-> platform : final broadcast\nwith overlays and scenes
+phone -[STROKE,dashed]-> ws : WebSocket control\nswitch scene · start/stop
+ws -[STROKE,dashed]-> obs
+note bottom of server
+  The server absorbs the unreliable leg.
+  A phone on mobile data never talks to
+  OBS directly — SRT hides jitter and loss
+  on the way in, so OBS sees a clean feed.
+end note
+@enduml

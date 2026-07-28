@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>PlohoyStream — Vladyslav Hontar</title>
+    <meta name="description" content="An Android live-streaming app with a from-scratch native RTMP/SRT stack, dual-camera picture-in-picture and OBS remote control.">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <p class="breadcrumb"><a href="index.html">← Back to portfolio</a></p>
+
+  <h1>PlohoyStream</h1>
+  <p class="tagline">An Android live-streaming app — camera to RTMP/SRT, with the transport written by hand</p>
+  <p class="entry-meta">Kotlin · Jetpack Compose · C/C++ over JNI · Camera2 · MediaCodec · libsrt — in active development</p>
+  <p class="header-links"><a href="https://github.com/VladyslavHontar/BadStream">Source on GitHub →</a></p>
+
+  <div class="page-section">
+    <h2>What it is</h2>
+    <p>An Android app that streams the phone camera to an RTMP, RTMPS or SRT destination. You paste a URL, press record, and the feed shows up wherever you pointed it — OBS, a media server, Twitch.</p>
+    <p>iOS has <a href="https://github.com/eerimoq/moblin">Moblin</a> for this and Android didn't have an equivalent I liked, so I started building one. I wrote the network stack myself in C/C++ instead of using a library, mostly because I wanted to understand how RTMP and SRT actually work rather than because it was the sensible choice.</p>
+    <p>It's a work in progress, and the honest version of how well it works is <a href="#state">further down the page</a>.</p>
+  </div>
+
+  <div class="page-section">
+    <h2>Watch it work</h2>
+    <p>All three clips are OBS on a Mac, receiving a live feed from the phone over the network. Nothing is edited in — what you see in the OBS canvas is arriving from the handset in real time.</p>
+
+    <figure class="clip">
+      <video controls preload="none" playsinline
+             poster="img/projects/PlohoyStream/posters/clip1.jpg">
+        <source src="vids/plohoystream-1.mp4" type="video/mp4">
+        Your browser can't play this video.
+      </video>
+      <figcaption>Single camera, walking indoors. The feed lands in OBS as a normal media source, so every scene, overlay and filter in the studio applies to it untouched.</figcaption>
+    </figure>
+
+    <figure class="clip">
+      <video controls preload="none" playsinline
+             poster="img/projects/PlohoyStream/posters/clip2.jpg">
+        <source src="vids/plohoystream-2.mp4" type="video/mp4">
+        Your browser can't play this video.
+      </video>
+      <figcaption>Dual-camera picture-in-picture. Front and back cameras run as two independent Camera2 inputs composited on the GPU before encoding — the receiving end gets one stream and never knows there were two sensors.</figcaption>
+    </figure>
+
+    <figure class="clip">
+      <video controls preload="none" playsinline
+             poster="img/projects/PlohoyStream/posters/clip3.jpg">
+        <source src="vids/plohoystream-3.mp4" type="video/mp4">
+        Your browser can't play this video.
+      </video>
+      <figcaption>Outdoors on a mobile connection. This is the case the whole architecture is built around: an unreliable uplink that still has to produce a clean picture at the other end.</figcaption>
+    </figure>
+  </div>
+
+  <div class="page-section">
+    <h2>The app itself</h2>
+    <p>Landscape-first viewfinder with a glass control rail: live timer, current bitrate with a link-health indicator, lens chips tied to the phone's real physical lenses, pinch or slider zoom, manual exposure, PiP toggle, and one unmissable go-live button.</p>
+    <div class="image-grid">
+      <div class="blur-load library-pictures">
+        <img src="img/projects/PlohoyStream/2026-07-28%2014.56.34.jpg" class="library-screenshot" loading="lazy" alt="Live viewfinder with timer and bitrate readout">
+      </div>
+      <div class="blur-load library-pictures">
+        <img src="img/projects/PlohoyStream/2026-07-28%2014.58.55.jpg" class="library-screenshot" loading="lazy" alt="Zoom slider at 2.9x while live">
+      </div>
+      <div class="blur-load library-pictures">
+        <img src="img/projects/PlohoyStream/2026-07-28%2014.58.48.jpg" class="library-screenshot" loading="lazy" alt="Manual exposure panel with shutter and ISO">
+      </div>
+      <div class="blur-load library-pictures">
+        <img src="img/projects/PlohoyStream/2026-07-28%2014.58.38.jpg" class="library-screenshot" loading="lazy" alt="Close focus while streaming at 2799 kbps">
+      </div>
+    </div>
+    <p>The bitrate readout is not decoration. It reflects what the adaptive bitrate loop in the native layer is actually doing to the encoder as the link changes — one screenshot above shows it holding around 6.4 Mbps, another sitting at 2.8 Mbps on a worse connection.</p>
+  </div>
+
+  <div class="page-section">
+    <h2>How a frame reaches the wire</h2>
+    <p>Every layer below the UI is one I had to make a decision in, and the interesting ones are at the bottom.</p>
+    <picture class="diagram-figure">
+      <source srcset="img/projects/PlohoyStream/diagrams/pipeline-dark.svg" media="(prefers-color-scheme: dark)">
+      <img src="img/projects/PlohoyStream/diagrams/pipeline-light.svg" alt="Pipeline from Compose UI through capture, GLES compositing, MediaCodec and the native RTMP/SRT core to the network" loading="lazy">
+    </picture>
+    <ul>
+      <li><p><b>Capture</b> — CameraX for the simple single-camera path; raw Camera2 when two cameras have to run at once, because CameraX won't give independent control of both.</p></li>
+      <li><p><b>Compositing</b> — both camera surfaces meet in a GLES compositor that draws the scene, the PiP window, mirroring and corner snapping on the GPU. Swapping which camera is the main view is instant because neither input is ever torn down.</p></li>
+      <li><p><b>Encode</b> — MediaCodec, H.264 or H.265 with automatic negotiation against what the server advertises, and an HDR (HLG10) path where the device supports it.</p></li>
+      <li><p><b>Native core</b> — the RTMP handshake, chunking, AMF0 and FLV muxing, MPEG-TS muxing and the SRT sender all live in C/C++ behind JNI, alongside the MP4 recorder and the adaptive-bitrate loop.</p></li>
+    </ul>
+    <p>Writing the transport by hand meant I had to read the actual specs — the chunk format, the AMF0 encoding, how SRT negotiates a latency budget. That part paid off. Whether the code I ended up with should stay is a separate question, and the answer is probably no.</p>
+  </div>
+
+  <div class="page-section">
+    <h2>Why there's a server between the phone and OBS</h2>
+    <p>The obvious design is to point the phone straight at OBS. It's also the wrong one, and understanding why is most of what this project taught me.</p>
+    <picture class="diagram-figure">
+      <source srcset="img/projects/PlohoyStream/diagrams/topology-dark.svg" media="(prefers-color-scheme: dark)">
+      <img src="img/projects/PlohoyStream/diagrams/topology-light.svg" alt="Phone sends SRT to a media server, OBS pulls from the server, and a WebSocket control channel goes from phone to OBS" loading="lazy">
+    </picture>
+    <p>A phone on mobile data is the worst link in the chain: packets arrive late, out of order, or not at all, and the available bandwidth changes as you walk down a street. <b>SRT</b> is built for exactly that leg — it runs over UDP, holds a configurable latency budget (a few hundred milliseconds of buffer), and uses that window to retransmit whatever got lost and hand frames onward in the right order at the right time. TCP would rather stall the stream than drop anything; SRT keeps the clock moving, which is what live video needs.</p>
+    <p>So the phone doesn't talk to OBS. It talks to a media server — <b>SRS</b> or <b>MediaMTX</b>, on a VPS or a box on the LAN — which terminates the SRT session, absorbs all that jitter and loss, and republishes a clean feed. OBS then pulls from the server over the reliable part of the network and sees a stream that behaves like a local camera. Overlays, scenes and the final broadcast to Twitch or YouTube all happen there, where the connection is stable.</p>
+    <p>The server buys three things at once: the ugly leg is isolated to one hop, OBS never has to deal with a flaky source, and the same feed can be pulled by more than one consumer without the phone sending it twice.</p>
+    <p>There's a second, separate channel going the other way. The phone speaks <b>obs-websocket</b> straight to OBS to list and switch scenes and to start or stop the broadcast — control only, no video. That's what makes the automatic "Be Right Back" behaviour possible: when the app notices link health degrading, it flips OBS to a BRB scene so the audience sees a placeholder card instead of a frozen frame, then switches back once the stream recovers. The phone knows its own connection is dying before the viewers do, and acts on it.</p>
+  </div>
+
+  <div class="page-section">
+    <h2>What's built</h2>
+    <div class="skills">
+      <div class="skill">
+        <div class="skill-name">Transport</div>
+        <p class="skill-detail">RTMP, RTMPS and SRT egress. Handshake, chunking, AMF0 and FLV written from scratch; MPEG-TS muxing; SRT through libsrt with <code>streamid</code> and <code>latency</code> carried on the URL.</p>
+      </div>
+      <div class="skill">
+        <div class="skill-name">Codecs</div>
+        <p class="skill-detail">H.264 and H.265 with automatic negotiation against the server's advertised codec list, plus a manual override for compatibility debugging. HDR (HLG10) capture-to-encode with SDR fallback.</p>
+      </div>
+      <div class="skill">
+        <div class="skill-name">Resilience</div>
+        <p class="skill-detail">Adaptive bitrate driven from live link statistics. Foreground-service streaming that survives backgrounding and the screen going off, with reconnects.</p>
+      </div>
+      <div class="skill">
+        <div class="skill-name">Camera</div>
+        <p class="skill-detail">Physical lens switching, pinch and chip zoom clamped to each sensor's real range, manual exposure, and dual-camera PiP that is draggable, resizable, corner-snapping and tap-to-swap.</p>
+      </div>
+      <div class="skill">
+        <div class="skill-name">Device handling</div>
+        <p class="skill-detail">Reads each phone's certified concurrent-camera combinations at runtime and only offers lens and PiP pairs the hardware genuinely supports, degrading rather than crashing on unsupported pairs.</p>
+      </div>
+      <div class="skill">
+        <div class="skill-name">OBS integration</div>
+        <p class="skill-detail">obs-websocket remote for scene listing and switching and start/stop control, with automatic Be Right Back switching on link degradation.</p>
+      </div>
+      <div class="skill">
+        <div class="skill-name">Recording</div>
+        <p class="skill-detail">Local MP4 capture alongside the live stream, or instead of it.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="page-section" id="state">
+    <h2>Where it actually stands</h2>
+    <p>Everything above works, in the sense that the clips are real and the stream arrives. But this is a project in the middle, not a finished app, and the list of things wrong with it is longer than the list of things I'd show off.</p>
+    <p><b>The picture falls apart when the connection does.</b> As soon as the available bandwidth dips, the feed doesn't degrade gently — it breaks into green macroblocks across half the frame and stays broken for a while. That's the biggest problem with the project and it's in the part I was proudest of writing.</p>
+    <p><b>My hand-written core is probably not what ships.</b> I learned the protocols by writing them, which was the point, but the result doesn't handle real network conditions well enough. I'm expecting to swap it for a proven implementation and keep my version as the thing I learned on.</p>
+    <p><b>It's had one phone's worth of testing.</b> On a second device (an Oppo) the usual Android fragmentation showed up: not every camera sensor gets enumerated, parts of the control layout break, and the preview sometimes starts on the wrong aspect ratio — then fixes itself the moment anything forces a relayout, like dragging the PiP window or pressing a control. The capability detection is written to be phone-agnostic; it isn't yet.</p>
+    <p>Fixing how it behaves on a bad connection comes first, then the device matrix.</p>
+  </div>
+
+  <p class="breadcrumb"><a href="index.html">← Back to portfolio</a></p>
+
+  <script src="js/lightbox.js" defer></script>
+</body>
+</html>

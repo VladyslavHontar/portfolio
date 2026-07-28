@@ -1,0 +1,66 @@
+@startuml pipeline
+' Capture-to-wire pipeline inside the app. Rendered to SVG by build_diagrams.sh.
+skinparam backgroundColor transparent
+skinparam shadowing false
+skinparam note {
+  BackgroundColor FILL
+  BorderColor STROKE
+  FontColor TEXT
+}
+skinparam defaultFontName Helvetica
+skinparam defaultFontSize 13
+skinparam roundCorner 8
+skinparam ArrowColor STROKE
+skinparam ArrowFontColor TEXT
+skinparam rectangle {
+  BackgroundColor FILL
+  BorderColor STROKE
+  FontColor TEXT
+}
+skinparam package {
+  BackgroundColor TRANSPARENT
+  BorderColor STROKE
+  FontColor MUTED
+  FontStyle plain
+}
+
+package "UI — Kotlin, Jetpack Compose" {
+  rectangle "Viewfinder\nControl rail · Settings · PiP overlay" as ui
+}
+
+package "Capture" {
+  rectangle "CameraX\nsingle camera" as camx
+  rectangle "Camera2\ntwo independent cameras" as cam2
+  rectangle "GLES compositor\nscene · PiP · mirror · corner snap" as gles
+}
+
+package "Encode" {
+  rectangle "MediaCodec\nH.264 / H.265 · SDR / HLG10" as codec
+}
+
+package "Native core — C/C++ over JNI" {
+  rectangle "RTMP\nhandshake · chunking\nAMF0 · FLV" as rtmp
+  rectangle "MPEG-TS\nmuxer" as ts
+  rectangle "SRT\nlibsrt" as srt
+  rectangle "MP4 recorder" as mp4
+  rectangle "Adaptive bitrate" as abr
+}
+
+rectangle "RTMP / RTMPS ingest" as outRtmp
+rectangle "SRT ingest" as outSrt
+rectangle "Local file" as outFile
+
+ui --> camx
+ui --> cam2
+camx --> gles
+cam2 --> gles
+gles --> codec
+codec --> rtmp
+codec --> ts
+codec --> mp4
+ts --> srt
+rtmp --> outRtmp
+srt --> outSrt
+mp4 --> outFile
+abr -[STROKE,dashed]-> codec : link stats in,\nbitrate out
+@enduml

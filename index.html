@@ -207,7 +207,7 @@
 
         <h3 class="name">PlohoyStream</h3>
         <p>Jun 2026 — active development</p>
-        <p>Repo: <a href="https://github.com/VladyslavHontar">not public yet</a></p>
+        <p>GitHub repo: <a href="https://github.com/VladyslavHontar/BadStream">BadStream</a></p>
         <br>
         <p>Turns an Android phone into a self-contained live-streaming camera — point it at a scene, pick a destination, go live to any RTMP, RTMPS or SRT ingest. Inspired by <i>Moblin</i> on iOS, aiming for a real broadcast tool rather than a toy.</p>
         <br>
@@ -222,6 +222,16 @@
         </ul>
         <br>
         <p>Kotlin and Jetpack Compose (Material 3) on top of the native core over JNI, with a landscape-first viewfinder.</p>
+        <div class="image-grid">
+          <div class="blur-load library-pictures">
+            <img src="img/projects/PlohoyStream/2026-07-28%2014.56.34.jpg" class="library-screenshot" loading="lazy" alt="PlohoyStream live viewfinder">
+          </div>
+          <div class="blur-load library-pictures">
+            <img src="img/projects/PlohoyStream/2026-07-28%2014.58.48.jpg" class="library-screenshot" loading="lazy" alt="Manual exposure panel while live">
+          </div>
+        </div>
+        <br>
+        <p style="text-align: center;"><a href="plohoystream.html" onclick="saveScrollPosition()">Full write-up, videos and architecture →</a></p>
         <br>
         <hr>
 
@@ -236,18 +246,24 @@
         <br>
         <p>Each hover on validator shows full info on IP, ports, ISP, stake, pubkey</p>
         <br>
-        <div class="image-grid">
+        <div class="gallery">
           <div class="blur-load library-pictures">
-            <img src="img/projects/SolanaMap/2026-03-11%2016.41.42.jpg" class="library-screenshot" loading="lazy">
+            <img src="img/projects/SolanaMap/2026-03-11%2016.41.42.jpg" class="library-screenshot" loading="lazy" alt="Validators plotted on the world map">
           </div>
           <div class="blur-load library-pictures">
-            <img src="img/projects/SolanaMap/2026-03-11%2016.41.46.jpg" class="library-screenshot" loading="lazy">
+            <img src="img/projects/SolanaMap/2026-03-11%2016.41.46.jpg" class="library-screenshot" loading="lazy" alt="Visualisation mode showing stake distribution">
           </div>
           <div class="blur-load library-pictures">
-            <img src="img/projects/SolanaMap/2026-03-11%2016.41.55.jpg" class="library-screenshot" loading="lazy">
+            <img src="img/projects/SolanaMap/2026-03-11%2016.41.52.jpg" class="library-screenshot" loading="lazy" alt="Routing hops between validators">
           </div>
           <div class="blur-load library-pictures">
-            <img src="img/projects/SolanaMap/2026-03-11%2016.42.06.jpg" class="library-screenshot" loading="lazy">
+            <img src="img/projects/SolanaMap/2026-03-11%2016.41.55.jpg" class="library-screenshot" loading="lazy" alt="Validator detail on hover">
+          </div>
+          <div class="blur-load library-pictures">
+            <img src="img/projects/SolanaMap/2026-03-11%2016.42.03.jpg" class="library-screenshot" loading="lazy" alt="Validator versions across the network">
+          </div>
+          <div class="blur-load library-pictures">
+            <img src="img/projects/SolanaMap/2026-03-11%2016.42.06.jpg" class="library-screenshot" loading="lazy" alt="Latency measurement view">
           </div>
         </div>
 
@@ -465,71 +481,8 @@
         <p class="note">This portfolio will be updated through my career. Ill try to post things here as much as I can.</p>
       </footer>
 
-      <script>
-        const blurredImageDivs = document.querySelectorAll(".blur-load");
-      
-        blurredImageDivs.forEach(blurredImageDiv => {
-          const img = blurredImageDiv.querySelector("img");
-      
-          img.addEventListener("load", () => {
-            blurredImageDiv.classList.add("loaded");
-          });
+      <script src="js/lightbox.js" defer></script>
 
-          // Add click event for fullscreen
-          img.addEventListener("click", () => {
-            openFullscreen(img.src);
-          });
-
-          // Add cursor pointer style
-          img.style.cursor = "pointer";
-        });
-
-        // Fullscreen modal functionality
-        function openFullscreen(imageSrc) {
-          // Create modal elements
-          const modal = document.createElement("div");
-          modal.style.cssText = `
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.9);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-            cursor: pointer;
-          `;
-
-          const fullscreenImg = document.createElement("img");
-          fullscreenImg.src = imageSrc;
-          fullscreenImg.style.cssText = `
-            max-width: 90%;
-            max-height: 90%;
-            object-fit: contain;
-          `;
-
-          modal.appendChild(fullscreenImg);
-          document.body.appendChild(modal);
-
-          // Close modal when clicked
-          modal.addEventListener("click", () => {
-            document.body.removeChild(modal);
-          });
-
-          // Close modal with Escape key
-          const closeOnEscape = (e) => {
-            if (e.key === "Escape") {
-              document.body.removeChild(modal);
-              document.removeEventListener("keydown", closeOnEscape);
-            }
-          };
-          document.addEventListener("keydown", closeOnEscape);
-        }
-      </script>
-      
-      
       <script>
         function toggleSolanaArb() {
           const content = document.getElementById("solanaArbContent");
