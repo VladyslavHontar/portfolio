@@ -1,24 +1,34 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Portfolio</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Vladyslav Hontar — Software Engineer</title>
+    <meta name="description" content="Software engineer in Athlone, Ireland. Java, Rust and distributed systems. Projects, experience and public talks.">
     <link rel="stylesheet" href="css/styles.css">
 
 </head>
 <body>
   <h1>Vladyslav Hontar</h1>
+  <p class="tagline">Software Engineer — Java · Rust · Distributed Systems · Athlone, Ireland</p>
+  <nav class="header-links">
+    <a onclick="openPDF()" href="">CV (PDF)</a>
+    <a href="https://github.com/VladyslavHontar">GitHub</a>
+    <a href="https://www.linkedin.com/in/vladyslav-hontar-108155243/">LinkedIn</a>
+    <a href="mailto:hontarvladie@gmail.com">hontarvladie@gmail.com</a>
+  </nav>
+
   <h2 class="quick-bio">Quick Bio</h2>
-  <p>If you want to see me bragging about myself in more detail, <a onclick="openPDF()" href="">here is my cv</a>.</p>
-    
+
     <section class="intro-section">
       <div class="picture">
-        <img src="img/pfp.jpg" class="pfp">
+        <img src="img/pfp.jpg" class="pfp" alt="Vladyslav Hontar">
       </div>
       <div class="text">
-        <p class="intro">I`m 21 years old student with experience as software and hardware engineer. For now I`m studying at Technological University of the Shannon and working on my software development skills as much as I can in my free time. At the moment I`m working as a Solana Blockchain Developer at Osambit and also on other Solana projects about which I will talk later within the same page. Have a desire in learning under hood part of differnet technologies. Also like to present different presentations and projects in front of the people explaining some technical stuff.</p>
+        <p class="intro">I'm a <span id="age">21</span>-year-old software engineer based in Athlone, Ireland. Java was my first language and still the one I reach for by default; Rust came later, when I got interested in how Solana works under the hood, and it's what I now write low-latency services in. I work at Osambit as a software engineer and technical consultant — I sit with clients to work out what they actually need, design the architecture, and then stay on to build it. Before that I spent a year and a half at EQUI Labs, a three-person startup, building backends, indexers and Solana programs.</p>
       </div>
       <div class="text">
-        <p class="intro">I also hold 3 Google careers certificates and 5 Google Cloud certificates which all can be checked on my <a href="https://www.linkedin.com/in/vladyslav-hontar-108155243/"> LinkedIn profile </a></p>
+        <p class="intro">I'm studying for an M.Sc. in Software Design with AI for Cloud Computing at Technological University of the Shannon, and I like taking things apart to understand how they work underneath. I also enjoy presenting technical topics to an audience — there are slides from a few of those talks further down this page.</p>
       </div>
     </section>
   <section class="contact">
@@ -64,11 +74,157 @@
 <!--    </div>  -->
 
 
+    <div class="page-section">
+      <h1>Experience</h1>
+      <div class="entry">
+        <p class="entry-title">Osambit — Software Engineer (Blockchain) &amp; Technical Consultant</p>
+        <p class="entry-meta">Aug 2025 – Present · Remote · Rust, Java, ZeroMQ, AWS, GitLab CI</p>
+        <p>Client-facing architecture work alongside delivery: low-latency infrastructure for DeFi/MEV strategies, with transactions landing inside the first slot.</p>
+      </div>
+      <div class="entry">
+        <p class="entry-title">EQUI Labs — Solana Blockchain Developer</p>
+        <p class="entry-meta">May 2024 – Sep 2025 · 3-person startup · Rust, Anchor, Java, Spring Boot</p>
+        <p>Backend, a real-time indexer over Solana DEX pool rates, Anchor programs, and a Java/Spring Boot observability service.</p>
+      </div>
+      <div class="entry">
+        <p class="entry-title">SKLO — Hardware Technician → Service Center Coordinator</p>
+        <p class="entry-meta">May 2021 – Mar 2022 · Kyiv, Ukraine</p>
+        <p>Coordinated a 7-person repair team; iPhone screen refurbishment and micro-soldering.</p>
+      </div>
+      <p class="note">The full version, with numbers, is in the <a onclick="openPDF()" href="">CV</a>. The projects below are the part a CV can't show.</p>
+    </div>
+
+    <div class="page-section">
+      <h1>Proficiency</h1>
+      <p>An honest read on where I actually stand, rather than a list of logos.</p>
+      <div class="skills">
+        <div class="skill">
+          <div class="skill-name">Java / Spring<span class="skill-level">Advanced</span></div>
+          <p class="skill-detail">My first language and the one I'm strongest in. Multi-service applications with Spring Boot, JPA/Hibernate, REST APIs, MySQL and PostgreSQL, tested with JUnit and Mockito.</p>
+        </div>
+        <div class="skill">
+          <div class="skill-name">Rust<span class="skill-level">Proficient</span></div>
+          <p class="skill-detail">Production low-latency services: Tokio, pinning threads to cores, cache-conscious data layout. Picked it up for Solana work and it's now my second language.</p>
+        </div>
+        <div class="skill">
+          <div class="skill-name">Solana<span class="skill-level">Advanced</span></div>
+          <p class="skill-detail">Validator internals, Turbine, leader schedule and transaction landing, mostly from an MEV perspective. Anchor programs, CPIs and compute-unit optimisation.</p>
+        </div>
+        <div class="skill">
+          <div class="skill-name">Infrastructure<span class="skill-level">Proficient</span></div>
+          <p class="skill-detail">Linux, Docker, Git, GitLab CI, ZeroMQ, AWS SQS and Secrets Manager. Architecture and infrastructure design is the part of a project I care about most — I think it decides half of whether it succeeds.</p>
+        </div>
+        <div class="skill">
+          <div class="skill-name">TypeScript / JavaScript<span class="skill-level">Working knowledge</span></div>
+          <p class="skill-detail">Backend APIs and dashboards. Enough to be useful across the stack, not where my depth is.</p>
+        </div>
+        <div class="skill">
+          <div class="skill-name">C++<span class="skill-level">Embedded level</span></div>
+          <p class="skill-detail">ESP32 and Arduino devices talking to sensors and REST APIs — see the AI assistant project below.</p>
+        </div>
+        <div class="skill">
+          <div class="skill-name">Solidity<span class="skill-level">Basic</span></div>
+          <p class="skill-detail">Enough to design and ship the Robin DLMM DEX. I'm an SVM person rather than an EVM one.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="page-section">
+      <h1>Education</h1>
+      <div class="entry">
+        <p class="entry-title">M.Sc., Software Design with AI for Cloud Computing <span class="skill-level">NFQ Level 9, in progress</span></p>
+        <p class="entry-meta">Technological University of the Shannon, Athlone · 2026 – 2027</p>
+      </div>
+      <div class="entry">
+        <p class="entry-title">B.Sc. (Honours), Software Design with AI for Cloud Computing <span class="skill-level">NFQ Level 8</span></p>
+        <p class="entry-meta">Technological University of the Shannon, Athlone · 2025 – 2026 · Second Class Honours Grade 1 (2:1), award GPA 66.41%</p>
+      </div>
+      <div class="entry">
+        <p class="entry-title">B.Eng., Computer Engineering <span class="skill-level">NFQ Level 7</span></p>
+        <p class="entry-meta">Technological University of the Shannon, Athlone · 2022 – 2025 · Pass with Merit Grade 1, final-year award GPA 70.72%</p>
+      </div>
+      <div class="entry">
+        <p class="entry-title">Higher Certificate, Network Technologies &amp; Telecommunications</p>
+        <p class="entry-meta">Kyiv College of Communication, Ukraine · 2019 – 2023</p>
+      </div>
+    </div>
+
+    <div class="page-section">
+      <h1>Certifications</h1>
+      <div class="cert-group">
+        <p class="cert-issuer">Google Cloud</p>
+        <ul>
+          <li>Manage PostgreSQL Databases on Cloud SQL</li>
+          <li>Insights from Data with BigQuery</li>
+          <li>Share Data using Google Cloud</li>
+          <li>Exploring Data with Looker</li>
+        </ul>
+      </div>
+      <div class="cert-group">
+        <p class="cert-issuer">Google Career Certificates</p>
+        <ul>
+          <li>Project Manager</li>
+        </ul>
+      </div>
+      <div class="cert-group">
+        <p class="cert-issuer">Cisco Networking Academy</p>
+        <ul>
+          <li>Networking fundamentals</li>
+        </ul>
+      </div>
+      <div class="cert-group">
+        <p class="cert-issuer">Technological University of the Shannon</p>
+        <ul>
+          <li>Presentation skills badge</li>
+        </ul>
+      </div>
+      <p>The complete set, including the remaining Google certificates, is on my <a href="https://www.linkedin.com/in/vladyslav-hontar-108155243/">LinkedIn profile</a>.</p>
+    </div>
+
+    <div class="page-section">
+      <h1>Community &amp; Competitions</h1>
+      <div class="entry">
+        <p class="entry-title">Solana Breakout Hackathon</p>
+        <p class="entry-meta">14 April 2025</p>
+        <ul>
+          <li>Built EQUI SWAP with the EQUI Labs team — a full swap product with its own indexer and routing engine, designed and shipped inside the competition window.</li>
+        </ul>
+      </div>
+      <div class="entry">
+        <p class="entry-title">Superteam Ireland</p>
+        <p class="entry-meta">Member</p>
+        <ul>
+          <li>Irish chapter of an international developer community — build events and technical meetups.</li>
+        </ul>
+      </div>
+    </div>
+
     <div class="projects-section">
       <h1>Projects</h1>
       <p>Here are some of my projects or projects I contribute to:</p>
       <div class="projects">
         <br>
+
+        <h3 class="name">PlohoyStream</h3>
+        <p>Jun 2026 — active development</p>
+        <p>Repo: <a href="https://github.com/VladyslavHontar">not public yet</a></p>
+        <br>
+        <p>Turns an Android phone into a self-contained live-streaming camera — point it at a scene, pick a destination, go live to any RTMP, RTMPS or SRT ingest. Inspired by <i>Moblin</i> on iOS, aiming for a real broadcast tool rather than a toy.</p>
+        <br>
+        <p>The transport stack is written from scratch in native C/C++ instead of wrapping a black-box SDK — RTMP handshake, chunking, AMF0 and FLV, MPEG-TS muxing, and SRT through libsrt — so the entire streaming path stays under the app's control.</p>
+        <br>
+        <ul>
+          <li><p>H.264 and H.265 with automatic codec negotiation, HDR (HLG10) capture-to-encode where the device supports it, and graceful SDR fallback.</p></li>
+          <li><p>Adaptive bitrate in the native layer, foreground-service streaming that survives backgrounding, and local MP4 recording alongside the live feed.</p></li>
+          <li><p>Dual-camera picture-in-picture: two independent Camera2 inputs composited through a shared GLES compositor. The PiP window is draggable, resizable and corner-snapping, and tap-to-swap between cameras is blink-free because both run as separate inputs.</p></li>
+          <li><p>Capability-driven — reads each device's certified concurrent-camera combinations at runtime and only offers lens and PiP pairs the hardware actually supports, degrading instead of failing.</p></li>
+          <li><p>OBS WebSocket remote: list and switch scenes and start or stop the OBS stream from the phone, with automatic "Be Right Back" switching when link health degrades.</p></li>
+        </ul>
+        <br>
+        <p>Kotlin and Jetpack Compose (Material 3) on top of the native core over JNI, with a landscape-first viewfinder.</p>
+        <br>
+        <hr>
+
 
         <h3 class="name">SolanaMap</h3>
         <p>Mar 2026</p>
@@ -133,6 +289,7 @@
 
         <h3 class="name">EQUI SWAP</h3>
         <p>Aggregator/Swaping tool/Wallet manager</p>
+        <p>Built with the EQUI Labs team for the <i>Solana Breakout Hackathon</i> (14 Apr 2025) — designed and shipped as a working product inside the competition window.</p>
         <br>
         <p>Website: <a href="https://swap.equilabs.io/swap">Equi Swap</a></p>
         <p>Pitch: <a href="https://youtu.be/jxKcVsSRQJU">Equi Swap - Pitch 2025</a></p>
@@ -192,7 +349,7 @@
             </div>
           </div>
           <br><br>
-          <a href="javascript:void(0)" id="toggleSolanaArb" onclick="toggleSolanaArb()" style="display: block; text-align: center; color: #007bff; text-decoration: underline; cursor: pointer;">
+          <a href="javascript:void(0)" id="toggleSolanaArb" onclick="toggleSolanaArb()" style="display: block; text-align: center; color: var(--link); text-decoration: underline; cursor: pointer;">
             Show More (old updates)
           </a>
           <br>
@@ -408,6 +565,18 @@
         function openPDF() {
           window.open("pdf/CV.pdf", "_blank");
         }
+
+        // Age from date of birth, so the bio never goes stale. The HTML holds a
+        // correct fallback value in case scripting is off.
+        function ageOn(today, birth) {
+          let years = today.getFullYear() - birth.getFullYear();
+          const beforeBirthday =
+            today.getMonth() < birth.getMonth() ||
+            (today.getMonth() === birth.getMonth() && today.getDate() < birth.getDate());
+          return beforeBirthday ? years - 1 : years;
+        }
+        document.getElementById("age").textContent =
+          ageOn(new Date(), new Date(2004, 7, 9)); // 7 = August, months are 0-indexed
 
         function saveScrollPosition() {
           localStorage.setItem('portfolioScrollPosition', window.pageYOffset);
