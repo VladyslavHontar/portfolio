@@ -1,5 +1,5 @@
 @startuml system
-' Whole-system component view. Rendered to SVG by build_diagrams.sh.
+' One flow, two lanes, one bank. Rendered to SVG by build_diagrams.sh.
 skinparam backgroundColor transparent
 skinparam shadowing false
 skinparam note {
@@ -34,79 +34,46 @@ skinparam cloud {
   BorderColor STROKE
   FontColor TEXT
 }
+skinparam nodesep 30
+skinparam ranksep 40
+left to right direction
 
-cloud "Solana network" as net
+cloud "Solana\nnetwork" as net
 
-package "Feeds" {
-  rectangle "Shredstream\ngRPC entries, pre-confirmation" as shred
-  rectangle "P2P complete lane\nreconstructed blocks" as p2p
-  rectangle "RPC\nboot catch-up only" as rpc
-  rectangle "Tick counter\nlast tick of a slot = blockhash" as tick
+package "Hot lane — reacts inside the slot" {
+  rectangle "Shred stream\nentries before\nconfirmation" as shreds
+  rectangle "Router\ndecode · ALT\naccount locks" as router
+  rectangle "Workers × N\nSVM execute\nroute finder" as workers
+  rectangle "Executor\ngate · dedup\nsender by leader" as exec
+  rectangle "Dispatcher\nsign · send" as disp
+  rectangle "Senders\nJito · Astralane · Helius\nNextBlock · 0slot · TPU …" as senders
 }
 
-package "Boot — once" {
-  rectangle "Snapshot ingest\nagave snapshot → LMDB, indexed in place" as ingest
-  rectangle "Pool discovery\nevery DEX pool → PoolRegistry" as disc
-  rectangle "Router graph\ntoken pairs → pools" as graph
-}
-
-package "Bank — arb-sim crate" {
-  database "LMDB root\n+ RAM read cache" as root
-  rectangle "Speculative head\nshred guesses per slot" as spec
+package "Bank — one process, no network in the loop" {
+  rectangle "Speculative head\nshred guesses, per slot" as spec
   rectangle "Pending fork\nconfirmed slot in replay" as pending
-  rectangle "Engine pool\nsolana-svm processors,\nshared program cache" as engines
-  rectangle "Sysvar overlay\nClock · RecentBlockhashes · SlotHashes" as sysvars
+  database "Root\nLMDB + read cache" as root
 }
 
-package "Hot path — pinned cores" {
-  rectangle "Router\ndecode · ALT · account locks · scheduler" as router
-  rectangle "Workers × N\nexecute_tx → route finder" as workers
+package "Confirmed lane — trails the chain by 1–2 slots" {
+  rectangle "Complete blocks\nP2P lane" as blocks
+  rectangle "Replay + verify\nsame SVM, bank hash\nvs network" as replay
 }
 
-package "Execution" {
-  rectangle "Executor\ngate simulate · dedup · sizing" as exec
-  rectangle "Tx router\nleader schedule → nearest sender" as txr
-  rectangle "Dispatcher\nsign · tx cache" as disp
-  rectangle "Senders\nJito · Astralane · Helius · NextBlock\n0slot · Falcon · FlashBlock · TPU" as senders
-}
-
-package "Confirmer" {
-  rectangle "Block replay\nsame scheduler + SVM" as replay
-  rectangle "Attestor + vote clock\nquorum bank hash · block time" as attest
-}
-
-package "Observability" {
-  rectangle "Prometheus → Grafana\nper-stage histograms" as metrics
-  rectangle "Watchdog\nper-worker liveness" as wd
-}
-
-net --> shred
-net --> p2p
-net --> rpc
-net --> senders
-shred --> tick
-shred --> router
+net --> shreds
+shreds --> router
 router --> workers
-workers --> spec : writes
-spec --> root : reads fall through
-workers --> engines
 workers --> exec
-exec --> txr
-txr --> disp
+exec --> disp
 disp --> senders
-tick --> disp : blockhash
-p2p --> replay
-rpc --> replay
+senders --> net
+
+workers -up-> spec : read snapshot,\nappend writes
+spec ..> root : misses fall through
+
+net --> blocks
+blocks --> replay
 replay --> pending
-replay --> attest
 pending --> root : commit_slot
-pending -[STROKE,dashed]-> spec : evict
-replay --> engines
-engines --> sysvars
-ingest --> root
-disc --> graph
-graph --> workers
-workers -[STROKE,dashed]-> metrics
-exec -[STROKE,dashed]-> metrics
-wd -[STROKE,dashed]-> workers
+pending ..> spec : evict guesses\nthe block supersedes
 @enduml

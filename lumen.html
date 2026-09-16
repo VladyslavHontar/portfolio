@@ -22,10 +22,11 @@
 
   <div class="page-section">
     <h2>The whole system on one page</h2>
-    <p>Three feeds in, one bank in the middle, eight senders out. Boot runs once: an agave snapshot is ingested straight into LMDB and indexed in place, every DEX pool is discovered into a registry, and the router graph of token pairs is built. From then on the shred stream drives the hot path and the complete lane drives the confirmer, both through the same bank and the same SVM engines.</p>
+    <p>One loop and one lag. The <b>hot lane</b> takes a transaction off the shred stream and, inside the same slot, simulates it, finds a route, gates it and sends its own transaction back to the network — everything in one process, nothing on that path talks to a server. The <b>confirmed lane</b> trails the chain by a slot or two: complete blocks are replayed through the same SVM, verified against the network's bank hash, and only then promoted to disk. The bank in the middle is what joins them — the hot lane reads and writes its speculative head, the confirmed lane writes its root and evicts the guesses each block supersedes.</p>
+    <p>Not drawn: boot (an agave snapshot ingested straight into LMDB, DEX pools discovered into a registry, the token-pair graph built once) and observability (a histogram per stage into Prometheus, a liveness watchdog per worker).</p>
     <picture class="diagram-figure">
       <source srcset="img/projects/Lumen/diagrams/system-dark.svg" media="(prefers-color-scheme: dark)">
-      <img src="img/projects/Lumen/diagrams/system-light.svg" alt="Component view: feeds (shredstream, P2P complete lane, RPC, tick counter), boot (snapshot ingest, pool discovery, router graph), the bank (LMDB root, speculative head, pending fork, engine pool, sysvar overlay), hot path (router, workers), execution (executor, tx router, dispatcher, senders), confirmer (block replay, attestor and vote clock), observability" loading="lazy">
+      <img src="img/projects/Lumen/diagrams/system-light.svg" alt="Two lanes around one bank: the hot lane goes shred stream → router → workers → executor → dispatcher → senders → network within the slot; the confirmed lane goes complete blocks → replay and verify → pending fork → commit to the LMDB root, evicting superseded guesses from the speculative head" loading="lazy">
     </picture>
   </div>
 
