@@ -7,12 +7,28 @@ skinparam note {
   BorderColor STROKE
   FontColor TEXT
 }
+skinparam defaultFontName Helvetica
+skinparam defaultFontSize 13
+skinparam roundCorner 8
+skinparam ArrowColor STROKE
+skinparam ArrowFontColor TEXT
+skinparam rectangle {
+  BackgroundColor FILL
+  BorderColor STROKE
+  FontColor TEXT
+}
+skinparam database {
+  BackgroundColor FILL
+  BorderColor STROKE
+  FontColor TEXT
+}
 skinparam package {
   BackgroundColor TRANSPARENT
   BorderColor STROKE
   FontColor MUTED
   FontStyle plain
 }
+
 skinparam cloud {
   BackgroundColor FILL
   BorderColor STROKE
