@@ -21,11 +21,20 @@
   </div>
 
   <div class="page-section">
+    <h2>The whole system on one page</h2>
+    <p>Three feeds in, one bank in the middle, eight senders out. Boot runs once: an agave snapshot is ingested straight into LMDB and indexed in place, every DEX pool is discovered into a registry, and the router graph of token pairs is built. From then on the shred stream drives the hot path and the complete lane drives the confirmer, both through the same bank and the same SVM engines.</p>
+    <picture class="diagram-figure">
+      <source srcset="img/projects/Lumen/diagrams/system-dark.svg" media="(prefers-color-scheme: dark)">
+      <img src="img/projects/Lumen/diagrams/system-light.svg" alt="Component view: feeds (shredstream, P2P complete lane, RPC, tick counter), boot (snapshot ingest, pool discovery, router graph), the bank (LMDB root, speculative head, pending fork, engine pool, sysvar overlay), hot path (router, workers), execution (executor, tx router, dispatcher, senders), confirmer (block replay, attestor and vote clock), observability" loading="lazy">
+    </picture>
+  </div>
+
+  <div class="page-section">
     <h2>How a shred becomes a transaction</h2>
     <p>The hot path is hand-built threads and channels, not an async runtime: a router thread, a set of workers pinned to their own cores, an executor and a dispatcher. Every stage is measured; every stage has a histogram.</p>
     <picture class="diagram-figure">
       <source srcset="img/projects/Lumen/diagrams/pipeline-dark.svg" media="(prefers-color-scheme: dark)">
-      <img src="img/projects/Lumen/diagrams/pipeline-light.svg" alt="Shred stream → router (decode, ALT resolve, account-lock scheduler) → pinned workers (SVM execute, route finder) → executor gate → dispatcher → senders" loading="lazy">
+      <img src="img/projects/Lumen/diagrams/pipeline-light.svg" alt="Shred stream → router (decode, ALT resolve, account-lock scheduler) → pinned workers (SVM execute against the bank, route finder over the pool registry) → executor gate → tx router by leader schedule → dispatcher with the tick-derived blockhash → senders" loading="lazy">
     </picture>
     <ul>
       <li><p><b>Router.</b> Scans raw bytes for tracked program IDs before deserialising anything, resolves address-lookup tables with the chain's own slot rules (a table extended in this slot is not visible yet; a deactivated one is gone after its cooldown), and classifies each transaction's writable and readonly accounts.</p></li>

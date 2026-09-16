@@ -1,0 +1,96 @@
+@startuml system
+' Whole-system component view. Rendered to SVG by build_diagrams.sh.
+skinparam backgroundColor transparent
+skinparam shadowing false
+skinparam note {
+  BackgroundColor FILL
+  BorderColor STROKE
+  FontColor TEXT
+}
+skinparam package {
+  BackgroundColor TRANSPARENT
+  BorderColor STROKE
+  FontColor MUTED
+  FontStyle plain
+}
+skinparam cloud {
+  BackgroundColor FILL
+  BorderColor STROKE
+  FontColor TEXT
+}
+
+cloud "Solana network" as net
+
+package "Feeds" {
+  rectangle "Shredstream\ngRPC entries, pre-confirmation" as shred
+  rectangle "P2P complete lane\nreconstructed blocks" as p2p
+  rectangle "RPC\nboot catch-up only" as rpc
+  rectangle "Tick counter\nlast tick of a slot = blockhash" as tick
+}
+
+package "Boot — once" {
+  rectangle "Snapshot ingest\nagave snapshot → LMDB, indexed in place" as ingest
+  rectangle "Pool discovery\nevery DEX pool → PoolRegistry" as disc
+  rectangle "Router graph\ntoken pairs → pools" as graph
+}
+
+package "Bank — arb-sim crate" {
+  database "LMDB root\n+ RAM read cache" as root
+  rectangle "Speculative head\nshred guesses per slot" as spec
+  rectangle "Pending fork\nconfirmed slot in replay" as pending
+  rectangle "Engine pool\nsolana-svm processors,\nshared program cache" as engines
+  rectangle "Sysvar overlay\nClock · RecentBlockhashes · SlotHashes" as sysvars
+}
+
+package "Hot path — pinned cores" {
+  rectangle "Router\ndecode · ALT · account locks · scheduler" as router
+  rectangle "Workers × N\nexecute_tx → route finder" as workers
+}
+
+package "Execution" {
+  rectangle "Executor\ngate simulate · dedup · sizing" as exec
+  rectangle "Tx router\nleader schedule → nearest sender" as txr
+  rectangle "Dispatcher\nsign · tx cache" as disp
+  rectangle "Senders\nJito · Astralane · Helius · NextBlock\n0slot · Falcon · FlashBlock · TPU" as senders
+}
+
+package "Confirmer" {
+  rectangle "Block replay\nsame scheduler + SVM" as replay
+  rectangle "Attestor + vote clock\nquorum bank hash · block time" as attest
+}
+
+package "Observability" {
+  rectangle "Prometheus → Grafana\nper-stage histograms" as metrics
+  rectangle "Watchdog\nper-worker liveness" as wd
+}
+
+net --> shred
+net --> p2p
+net --> rpc
+net --> senders
+shred --> tick
+shred --> router
+router --> workers
+workers --> spec : writes
+spec --> root : reads fall through
+workers --> engines
+workers --> exec
+exec --> txr
+txr --> disp
+disp --> senders
+tick --> disp : blockhash
+p2p --> replay
+rpc --> replay
+replay --> pending
+replay --> attest
+pending --> root : commit_slot
+pending -[STROKE,dashed]-> spec : evict
+replay --> engines
+engines --> sysvars
+ingest --> root
+disc --> graph
+graph --> workers
+workers -[STROKE,dashed]-> metrics
+exec -[STROKE,dashed]-> metrics
+wd -[STROKE,dashed]-> workers
+@enduml

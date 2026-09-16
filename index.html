@@ -223,7 +223,7 @@
           </ul>
           <picture class="diagram-figure">
             <source srcset="img/projects/Lumen/diagrams/pipeline-dark.svg" media="(prefers-color-scheme: dark)">
-            <img src="img/projects/Lumen/diagrams/pipeline-light.svg" alt="Shred stream → router (decode, ALT resolve, account-lock scheduler) → pinned workers (SVM execute, route finder) → executor gate → dispatcher → senders" loading="lazy">
+            <img src="img/projects/Lumen/diagrams/pipeline-light.svg" alt="Shred stream → router (decode, ALT resolve, account-lock scheduler) → pinned workers (SVM execute against the bank, route finder over the pool registry) → executor gate → tx router by leader schedule → dispatcher with the tick-derived blockhash → senders" loading="lazy">
           </picture>
           <p><b>A real Raydium V4 swap simulates in about 0.2 ms p50 on the production Xeon with the x86-64 JIT.</b> The other rows are the same benchmark on an Apple M-series laptop, where only the sBPF interpreter exists — a pessimistic floor, not the real cost:</p>
           <div class="table-wrap">

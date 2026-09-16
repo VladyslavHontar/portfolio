@@ -30,6 +30,8 @@ skinparam package {
 }
 
 rectangle "Shred stream\nraw entries, pre-confirmation" as shreds
+rectangle "Tick counter\nslot's last tick → blockhash" as tick
+rectangle "Slot clock\nfirst-shred anchor, newest slot" as clock
 
 package "Router — one thread" {
   rectangle "Decode + pre-filter\nprogram-id scan on raw bytes" as decode
@@ -46,16 +48,26 @@ package "Executor" {
   rectangle "Gate\nread-only simulate per candidate\ndedup by route + slot" as gate
 }
 
+rectangle "Bank\nspeculative head · engine pool · LMDB root" as bank
+rectangle "Pool registry + router graph\nready pools, token-pair edges" as graph
+rectangle "Tx router\nleader schedule → nearest sender" as txr
 rectangle "Dispatcher\nsign · tx cache" as disp
 rectangle "Senders\nJito · Astralane · Helius · NextBlock\n0slot · Falcon · FlashBlock · TPU" as senders
 
 shreds --> decode
+shreds --> tick
+shreds --> clock
 decode --> alt
 alt --> sched
 sched --> svm : locks held
 svm --> sched : locks back\nright after execute
 svm --> finder
 finder --> gate
-gate --> disp
+svm <--> bank : snapshot head,\nappend writes
+graph --> finder
+clock -[STROKE,dashed]-> finder : skip routes\nfor stale slots
+gate --> txr
+txr --> disp
+tick -[STROKE,dashed]-> disp : blockhash
 disp --> senders
 @enduml
