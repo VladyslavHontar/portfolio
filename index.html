@@ -225,7 +225,7 @@
             <source srcset="img/projects/Lumen/diagrams/pipeline-dark.svg" media="(prefers-color-scheme: dark)">
             <img src="img/projects/Lumen/diagrams/pipeline-light.svg" alt="Shred stream → router (decode, ALT resolve, account-lock scheduler) → pinned workers (SVM execute, route finder) → executor gate → dispatcher → senders" loading="lazy">
           </picture>
-          <p>Measured on the real mainnet SOL/USDC Raydium V4 pool, sBPF interpreter on an Apple M-series laptop (production runs the x86-64 JIT, which is faster):</p>
+          <p>Measured on the real mainnet SOL/USDC Raydium V4 pool, sBPF interpreter on an Apple M-series laptop. On the production Xeon box with the x86-64 JIT the same swap simulates in about 0.2 ms p50:</p>
           <div class="table-wrap">
             <table class="bench-table">
               <thead><tr><th>Path</th><th>p50</th><th>p99</th></tr></thead>

@@ -65,7 +65,7 @@
         </tbody>
       </table>
     </div>
-    <p>The hot-path number is the one that matters: a full speculative execute with the bookkeeping around it costs no more than the bare simulation, so the scheduler and the bank add nothing measurable. On production hardware with the JIT the swap itself is several times cheaper; the transfer number is close to what the engine costs there. Throughput on the laptop scales from 960 to 2 770 swaps/s across eight threads — sub-linear, which points at a shared program-cache lock inside the SVM as the next thing to profile.</p>
+    <p>The hot-path number is the one that matters: a full speculative execute with the bookkeeping around it costs no more than the bare simulation, so the scheduler and the bank add nothing measurable. On the production Xeon box with the x86-64 JIT the same swap simulates in about <b>0.2 ms p50</b> — measured there before the current scheduler work, so the laptop figures above are a 5× pessimistic floor, not the real-world cost. Throughput on the laptop scales from 960 to 2 770 swaps/s across eight threads — sub-linear, which points at a shared program-cache lock inside the SVM as the next thing to profile.</p>
   </div>
 
   <div class="page-section">
