@@ -225,12 +225,13 @@
             <source srcset="img/projects/Lumen/diagrams/pipeline-dark.svg" media="(prefers-color-scheme: dark)">
             <img src="img/projects/Lumen/diagrams/pipeline-light.svg" alt="Shred stream → router (decode, ALT resolve, account-lock scheduler) → pinned workers (SVM execute, route finder) → executor gate → dispatcher → senders" loading="lazy">
           </picture>
-          <p>Measured on the real mainnet SOL/USDC Raydium V4 pool, sBPF interpreter on an Apple M-series laptop. On the production Xeon box with the x86-64 JIT the same swap simulates in about 0.2 ms p50:</p>
+          <p><b>A real Raydium V4 swap simulates in about 0.2 ms p50 on the production Xeon with the x86-64 JIT.</b> The other rows are the same benchmark on an Apple M-series laptop, where only the sBPF interpreter exists — a pessimistic floor, not the real cost:</p>
           <div class="table-wrap">
             <table class="bench-table">
               <thead><tr><th>Path</th><th>p50</th><th>p99</th></tr></thead>
               <tbody>
-                <tr><td>Raydium V4 swap, full simulate (16 384 CU)</td><td>1.01 ms</td><td>1.22 ms</td></tr>
+                <tr class="headline"><td>Raydium V4 swap — production Xeon, JIT</td><td>0.2 ms</td><td>—</td></tr>
+                <tr><td>Raydium V4 swap — laptop, interpreter (16 384 CU)</td><td>1.01 ms</td><td>1.22 ms</td></tr>
                 <tr><td>Hot path: speculative execute + bookkeeping, 200 tx / slot</td><td>0.98 ms</td><td>1.14 ms</td></tr>
                 <tr><td>System transfer (engine floor)</td><td>59 µs</td><td>110 µs</td></tr>
                 <tr><td>Account-lock scheduler, per transaction</td><td colspan="2">3.5 µs</td></tr>

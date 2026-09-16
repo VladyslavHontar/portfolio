@@ -51,21 +51,22 @@
 
   <div class="page-section">
     <h2>How fast the SVM actually is</h2>
-    <p>Measured with <code>cargo bench --bench svm_sim</code> on the real mainnet SOL/USDC Raydium V4 pool and program bytes captured as fixtures, on a 10-core Apple M-series laptop. Two caveats up front: this is the sBPF <i>interpreter</i> (the JIT only exists for x86-64, which is what production runs on), and the parallel numbers below are on the laptop, not the pinned bare-metal box.</p>
+    <p><b>On the production Xeon with the x86-64 JIT a real Raydium V4 swap simulates in about 0.2 ms p50.</b> The rest of the table is the same benchmark, <code>cargo bench --bench svm_sim</code>, on the real mainnet SOL/USDC pool and program bytes captured as fixtures, run on a 10-core Apple M-series laptop — which means the sBPF <i>interpreter</i> (the JIT only exists for x86-64), so those rows are roughly a 5× pessimistic floor, not the real-world cost.</p>
     <div class="table-wrap">
       <table class="bench-table">
         <thead>
           <tr><th>Path</th><th>What runs</th><th>p50</th><th>p90</th><th>p99</th></tr>
         </thead>
         <tbody>
-          <tr><td>Raydium V4 swap</td><td>sanitize → load → execute, 16 384 CU, read-only</td><td>1.01 ms</td><td>1.11 ms</td><td>1.22 ms</td></tr>
+          <tr class="headline"><td>Raydium V4 swap — production</td><td>Xeon, x86-64 JIT, same swap, measured on the live box</td><td>0.2 ms</td><td>—</td><td>—</td></tr>
+          <tr><td>Raydium V4 swap — laptop</td><td>sanitize → load → execute, 16 384 CU, sBPF interpreter</td><td>1.01 ms</td><td>1.11 ms</td><td>1.22 ms</td></tr>
           <tr><td>Hot path, 200 tx / slot</td><td>speculative execute: snapshot head, simulate, append, then confirm</td><td>0.98 ms</td><td>1.06 ms</td><td>1.14 ms</td></tr>
           <tr><td>System transfer</td><td>the floor: SVM overhead with almost no BPF</td><td>59 µs</td><td>62 µs</td><td>110 µs</td></tr>
           <tr><td>Scheduler</td><td>admit + dispatch + release, 30 accounts, 8 in flight</td><td colspan="3">3.5 µs per transaction</td></tr>
         </tbody>
       </table>
     </div>
-    <p>The hot-path number is the one that matters: a full speculative execute with the bookkeeping around it costs no more than the bare simulation, so the scheduler and the bank add nothing measurable. On the production Xeon box with the x86-64 JIT the same swap simulates in about <b>0.2 ms p50</b> — measured there before the current scheduler work, so the laptop figures above are a 5× pessimistic floor, not the real-world cost. Throughput on the laptop scales from 960 to 2 770 swaps/s across eight threads — sub-linear, which points at a shared program-cache lock inside the SVM as the next thing to profile.</p>
+    <p>The hot-path row is the one that matters: a full speculative execute with the bookkeeping around it costs no more than the bare simulation, so the scheduler and the bank add nothing measurable on top of the SVM. Throughput on the laptop scales from 960 to 2 770 swaps/s across eight threads — sub-linear, which points at a shared program-cache lock inside the SVM as the next thing to profile.</p>
   </div>
 
   <div class="page-section">

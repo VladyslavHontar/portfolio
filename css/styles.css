@@ -444,3 +444,8 @@ code {
 }
 .bench-table th { font-weight: 400; color: var(--muted); }
 .bench-table td:first-child { white-space: normal; }
+.bench-table tr.headline td {
+  font-weight: 500;
+  color: var(--fg);
+  background-color: var(--card);
+}
