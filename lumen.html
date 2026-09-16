@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Lumen — Vladyslav Hontar</title>
+    <meta name="description" content="Lumen: a shred-driven Solana simulation engine — the third major version of my Solana arbitrage system, with its own SVM bank, an account-lock scheduler and a multi-sender landing layer.">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <p class="breadcrumb"><a href="index.html">← Back to portfolio</a></p>
+
+  <h1>Lumen</h1>
+  <p class="tagline">Reacting to Solana transactions before the chain has confirmed them — a private SVM bank fed straight from the shred stream</p>
+  <p class="entry-meta">Rust · solana-svm internals · LMDB · custom thread pipeline · 2026 — the third major version of the arb system, private repo</p>
+
+  <div class="page-section">
+    <h2>What it is</h2>
+    <p>Lumen is a Solana state machine that does not wait for the chain. It consumes the raw shred stream — the pre-confirmation transaction data validators gossip to each other — decodes every transaction, simulates it in an embedded SVM against a speculative copy of chain state, and reacts to the result. By the time a swap is confirmed on chain, Lumen has already priced what it did to the pool and, if that opened an opportunity, sent its own transaction.</p>
+    <p>The <a href="index.html#lumen">first two versions</a> of this system read prices from an indexer and simulated through an API. Lumen replaces all of that with a bank: an LMDB-backed accounts database with a real <code>solana-svm</code> execution engine on top, so the whole loop — ingest, simulate, price, gate, sign, send — happens in one process with nothing in the hot path that talks to a network.</p>
+  </div>
+
+  <div class="page-section">
+    <h2>How a shred becomes a transaction</h2>
+    <p>The hot path is hand-built threads and channels, not an async runtime: a router thread, a set of workers pinned to their own cores, an executor and a dispatcher. Every stage is measured; every stage has a histogram.</p>
+    <picture class="diagram-figure">
+      <source srcset="img/projects/Lumen/diagrams/pipeline-dark.svg" media="(prefers-color-scheme: dark)">
+      <img src="img/projects/Lumen/diagrams/pipeline-light.svg" alt="Shred stream → router (decode, ALT resolve, account-lock scheduler) → pinned workers (SVM execute, route finder) → executor gate → dispatcher → senders" loading="lazy">
+    </picture>
+    <ul>
+      <li><p><b>Router.</b> Scans raw bytes for tracked program IDs before deserialising anything, resolves address-lookup tables with the chain's own slot rules (a table extended in this slot is not visible yet; a deactivated one is gone after its cooldown), and classifies each transaction's writable and readonly accounts.</p></li>
+      <li><p><b>Account-lock scheduler.</b> The piece I am most careful about. Two workers simulating two swaps on the same pool from the same snapshot would silently corrupt the state everything downstream prices against. So transactions are dispatched only once their account locks are free, with per-address FIFO queues in the shape of agave's own <code>unified-scheduler</code>: conflicting transactions run strictly in arrival order and each sees its predecessor's writes; independent ones run in parallel; every scheduling event costs O(accounts of one transaction), not O(queue depth).</p></li>
+      <li><p><b>Workers.</b> Snapshot the speculative head, run the transaction through the SVM, append its writes, and hand the locks back immediately — route finding happens after release, priced on the transaction's own write-set so a conflicting successor cannot tear the view.</p></li>
+      <li><p><b>Executor and dispatcher.</b> Every candidate route is re-simulated read-only before it is trusted, duplicates of a route already sent this slot are dropped, the transaction is signed with a blockhash taken from the slot's last tick (the only hash the chain actually accepts), and it goes out through whichever sender is closest to the current leader.</p></li>
+    </ul>
+  </div>
+
+  <div class="page-section">
+    <h2>Two forks over one root</h2>
+    <p>This is the part that took the longest to get right. The bank keeps confirmed state in LMDB and two layers on top of it, in the same shape as agave's bank forks:</p>
+    <picture class="diagram-figure">
+      <source srcset="img/projects/Lumen/diagrams/state-dark.svg" media="(prefers-color-scheme: dark)">
+      <img src="img/projects/Lumen/diagrams/state-light.svg" alt="Root LMDB state with a speculative head written by shred workers and a pending fork written by the confirmer, promoted atomically by commit_slot" loading="lazy">
+    </picture>
+    <ul>
+      <li><p>The <b>speculative head</b> is what the hot path reads and writes: the guesses produced by simulating shreds, per slot, last writer wins.</p></li>
+      <li><p>The <b>pending fork</b> is a confirmed block being replayed by the confirmer, through the same scheduler and the same SVM. The hot path cannot see it. When the block's bank hash matches what the network attested, <code>commit_slot</code> promotes it to LMDB in one atomic batch and evicts the guesses it supersedes; if it does not match, the fork is discarded and replayed. A wrong guess therefore lives at most one confirmation lag, and disk is only ever written from deterministic replay of confirmed transactions.</p></li>
+    </ul>
+    <p>Replay is verified against the chain the way a validator verifies itself: an accounts lt-hash folded per block, sealed into the agave bank hash, compared with the quorum-attested hash for that slot. Same-block program upgrades and lookup-table extensions stay invisible for one slot because the chain delays them — that came out of reading agave's loader rather than guessing.</p>
+  </div>
+
+  <div class="page-section">
+    <h2>How fast the SVM actually is</h2>
+    <p>Measured with <code>cargo bench --bench svm_sim</code> on the real mainnet SOL/USDC Raydium V4 pool and program bytes captured as fixtures, on a 10-core Apple M-series laptop. Two caveats up front: this is the sBPF <i>interpreter</i> (the JIT only exists for x86-64, which is what production runs on), and the parallel numbers below are on the laptop, not the pinned bare-metal box.</p>
+    <div class="table-wrap">
+      <table class="bench-table">
+        <thead>
+          <tr><th>Path</th><th>What runs</th><th>p50</th><th>p90</th><th>p99</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Raydium V4 swap</td><td>sanitize → load → execute, 16 384 CU, read-only</td><td>1.01 ms</td><td>1.11 ms</td><td>1.22 ms</td></tr>
+          <tr><td>Hot path, 200 tx / slot</td><td>speculative execute: snapshot head, simulate, append, then confirm</td><td>0.98 ms</td><td>1.06 ms</td><td>1.14 ms</td></tr>
+          <tr><td>System transfer</td><td>the floor: SVM overhead with almost no BPF</td><td>59 µs</td><td>62 µs</td><td>110 µs</td></tr>
+          <tr><td>Scheduler</td><td>admit + dispatch + release, 30 accounts, 8 in flight</td><td colspan="3">3.5 µs per transaction</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>The hot-path number is the one that matters: a full speculative execute with the bookkeeping around it costs no more than the bare simulation, so the scheduler and the bank add nothing measurable. On production hardware with the JIT the swap itself is several times cheaper; the transfer number is close to what the engine costs there. Throughput on the laptop scales from 960 to 2 770 swaps/s across eight threads — sub-linear, which points at a shared program-cache lock inside the SVM as the next thing to profile.</p>
+  </div>
+
+  <div class="page-section">
+    <h2>Landing</h2>
+    <p>Simulation is only half of it; the transaction still has to reach the leader first. Lumen keeps a router over every landing service I could get access to and measures each endpoint continuously, so a transaction goes to whichever path is closest to the current leader's region. This is the live probe table from the sender router — same transaction, every provider, every region.</p>
+    <figure class="clip">
+      <img src="img/projects/Lumen/senders-latency.jpg" alt="Latency table across landing providers and regions: Jito, Astralane, Helius, NextBlock, 0slot, Falcon, FlashBlock — Amsterdam under 1 ms, Frankfurt and London around 7 ms, US 70–130 ms" loading="lazy" style="width:100%;border-radius:8px;">
+      <figcaption>Per-endpoint round-trip from the bot's box: Amsterdam providers answer in under a millisecond, Frankfurt and London in about seven, the US east coast in seventy. The router uses this to pick the sender per leader slot.</figcaption>
+    </figure>
+  </div>
+
+  <div class="page-section">
+    <h2>What I learned building it</h2>
+    <ul>
+      <li><p>Rust's ownership rules stop data races, not logic races. Two threads can take perfectly safe snapshots and still compute the wrong answer; the order has to be imposed explicitly, and agave's lock table is the right model for that.</p></li>
+      <li><p>When in doubt, read the validator. Blockhash validity, lookup-table slot rules, program delay visibility — each of those was a bug in my mental model until I opened agave's source and matched it line by line.</p></li>
+      <li><p>Measure every stage separately. The first version of the scheduler hid its cost inside "queue wait"; splitting the histogram made the real number visible in a day.</p></li>
+    </ul>
+    <p>The repository is private. The on-chain program that recomputes every arbitrage before it settles is open: <a href="https://solscan.io/account/EQU1nKCRWLVNALQc3VHyhzmuZiVeJXp3gnfdAfn47Ltw">Solscan</a>.</p>
+  </div>
+</body>
+</html>

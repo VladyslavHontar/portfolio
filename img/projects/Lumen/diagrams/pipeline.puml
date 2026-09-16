@@ -1,0 +1,61 @@
+@startuml pipeline
+' Shred-to-wire hot path. Rendered to SVG by build_diagrams.sh.
+skinparam backgroundColor transparent
+skinparam shadowing false
+skinparam note {
+  BackgroundColor FILL
+  BorderColor STROKE
+  FontColor TEXT
+}
+skinparam defaultFontName Helvetica
+skinparam defaultFontSize 13
+skinparam roundCorner 8
+skinparam ArrowColor STROKE
+skinparam ArrowFontColor TEXT
+skinparam rectangle {
+  BackgroundColor FILL
+  BorderColor STROKE
+  FontColor TEXT
+}
+skinparam database {
+  BackgroundColor FILL
+  BorderColor STROKE
+  FontColor TEXT
+}
+skinparam package {
+  BackgroundColor TRANSPARENT
+  BorderColor STROKE
+  FontColor MUTED
+  FontStyle plain
+}
+
+rectangle "Shred stream\nraw entries, pre-confirmation" as shreds
+
+package "Router — one thread" {
+  rectangle "Decode + pre-filter\nprogram-id scan on raw bytes" as decode
+  rectangle "ALT resolve\nchain slot rules, cached" as alt
+  rectangle "Account-lock scheduler\nper-address FIFO, agave lock rules" as sched
+}
+
+package "Workers — pinned cores" {
+  rectangle "SVM execute\nspeculative head snapshot → simulate → append" as svm
+  rectangle "Route finder\nprices on own write-set + live head" as finder
+}
+
+package "Executor" {
+  rectangle "Gate\nread-only simulate per candidate\ndedup by route + slot" as gate
+}
+
+rectangle "Dispatcher\nsign · tx cache" as disp
+rectangle "Senders\nJito · Astralane · Helius · NextBlock\n0slot · Falcon · FlashBlock · TPU" as senders
+
+shreds --> decode
+decode --> alt
+alt --> sched
+sched --> svm : locks held
+svm --> sched : locks back\nright after execute
+svm --> finder
+finder --> gate
+gate --> disp
+disp --> senders
+@enduml

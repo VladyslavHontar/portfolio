@@ -422,3 +422,25 @@ code {
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; }
 }
+
+/* Lumen: version headings inside a project, benchmark table */
+.updates {
+  font-weight: 400;
+  font-size: 1.05em;
+  margin: 1.6rem 0 0.4rem;
+}
+.table-wrap { overflow-x: auto; margin: 1rem 0; }
+.bench-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-weight: 200;
+  font-size: 0.95em;
+}
+.bench-table th, .bench-table td {
+  text-align: left;
+  padding: 0.45rem 0.6rem;
+  border-bottom: 1px solid var(--rule);
+  white-space: nowrap;
+}
+.bench-table th { font-weight: 400; color: var(--muted); }
+.bench-table td:first-child { white-space: normal; }

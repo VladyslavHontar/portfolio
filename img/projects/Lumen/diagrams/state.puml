@@ -1,0 +1,57 @@
+@startuml state
+' The bank's two forks over the confirmed root. Rendered by build_diagrams.sh.
+skinparam backgroundColor transparent
+skinparam shadowing false
+skinparam note {
+  BackgroundColor FILL
+  BorderColor STROKE
+  FontColor TEXT
+}
+skinparam defaultFontName Helvetica
+skinparam defaultFontSize 13
+skinparam roundCorner 8
+skinparam ArrowColor STROKE
+skinparam ArrowFontColor TEXT
+skinparam rectangle {
+  BackgroundColor FILL
+  BorderColor STROKE
+  FontColor TEXT
+}
+skinparam database {
+  BackgroundColor FILL
+  BorderColor STROKE
+  FontColor TEXT
+}
+skinparam package {
+  BackgroundColor TRANSPARENT
+  BorderColor STROKE
+  FontColor MUTED
+  FontStyle plain
+}
+
+database "Root\nLMDB + RAM read cache\nconfirmed state" as root
+
+package "Speculative head — what the hot path reads" {
+  rectangle "Slot N guesses\nWriteRecords from shred sims" as specN
+  rectangle "Slot N+1 guesses" as specN1
+}
+
+package "Pending fork — invisible to the hot path" {
+  rectangle "Replay of confirmed slot N\nsame scheduler, declared-key snapshots" as pending
+}
+
+rectangle "Shred workers" as workers
+rectangle "Confirmer\nP2P complete lane / RPC" as confirmer
+
+workers --> specN : execute_tx
+workers --> specN1
+specN -[STROKE,dashed]-> root : reads fall through
+confirmer --> pending : replay_tx
+pending --> root : commit_slot\none atomic batch
+pending -[STROKE,dashed]-> specN : evicts superseded\nguesses on commit
+note bottom of pending
+  bank hash verified against
+  the network before commit;
+  mismatch = discard + replay
+end note
+@enduml
