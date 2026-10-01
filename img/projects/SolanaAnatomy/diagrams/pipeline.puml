@@ -1,0 +1,64 @@
+@startuml pipeline
+' Two sources joined into one block. Rendered to SVG by build_diagrams.sh.
+skinparam backgroundColor transparent
+skinparam shadowing false
+skinparam defaultFontName Helvetica
+skinparam defaultFontSize 13
+skinparam roundCorner 8
+skinparam ArrowColor STROKE
+skinparam ArrowFontColor TEXT
+skinparam rectangle {
+  BackgroundColor FILL
+  BorderColor STROKE
+  FontColor TEXT
+}
+skinparam database {
+  BackgroundColor FILL
+  BorderColor STROKE
+  FontColor TEXT
+}
+skinparam package {
+  BackgroundColor TRANSPARENT
+  BorderColor STROKE
+  FontColor MUTED
+  FontStyle plain
+}
+
+package "Live — runs next to the shred node" {
+  rectangle "Colibri\nturbine shreds → entries, gRPC" as colibri
+  rectangle "record-entries\nwincode decode, one line per completed slot" as rec
+  database "boundaries.jsonl\n[batch, entry length, first signature]" as file
+}
+
+package "On demand — per watched wallet" {
+  rectangle "JSON-RPC\ngetSignaturesForAddress · getBlock" as rpc
+  database "Block cache\nSQLite, zstd, oldest slot leaves first" as cache
+  rectangle "source-rpc\nmodel::Block: order, accounts, token changes, routes" as src
+}
+
+rectangle "Block::with_entries\njoin by each entry's first signature,\nrefused unless it covers the block exactly" as join
+rectangle "analysis — pure functions\nlandings → trigger, d, visibility\nfailures → beaten · own copy · stale · nothing ahead" as analysis
+database "Store\nSQLite: wallets, attempts, landings, failures" as store
+
+package "server — one binary" {
+  rectangle "HTTP API\nsummary, insight, block view" as api
+  rectangle "Web UI\nSvelte, embedded" as ui
+  rectangle "MCP\n8 read-only tools" as mcp
+}
+
+rectangle "Gossip · vote accounts\nip-api · bundles.jito.wtf" as side
+
+colibri --> rec : one message\nper batch
+rec --> file
+rpc --> cache : settled blocks
+cache --> src
+rpc --> src
+file --> join
+src --> join
+join --> analysis
+analysis --> store
+store --> api
+side -[STROKE,dashed]-> api : leader client, place,\nJito bundles
+api --> ui
+api --> mcp
+@enduml

@@ -294,6 +294,13 @@ h2 {
   display: block;
   background-color: #000;
 }
+.clip img[data-zoom] {
+  width: 100%;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px var(--shadow);
+  display: block;
+  cursor: zoom-in;
+}
 .clip figcaption {
   font-weight: 200;
   font-size: 0.92em;

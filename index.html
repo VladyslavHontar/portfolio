@@ -76,6 +76,37 @@
       <div class="projects">
         <br>
 
+        <div id="solanaanatomy">
+          <h3 class="name">SolanaAnatomy — landing explorer for Solana arb bots</h3>
+          <p>Sep 2026 — active development</p>
+          <p>GitHub repo: private, for the same reason <a href="#lumen">Lumen</a> is</p>
+          <br>
+          <p>An explorer tells you a transaction landed. It does not tell you what it was chasing, who else was chasing it, or by how many positions it lost. SolanaAnatomy reads every block a watched wallet has a transaction in and answers that — for my bot and for the bots it competes with, from the same public data.</p>
+          <br>
+          <ul>
+            <li><p><b>Triggers.</b> Each landing is matched to the nearest earlier trade on a pool it traded, with the distance between them in block positions and the kind of flow the trigger was: a front-end, a router, or a rival's arbitrage.</p></li>
+            <li><p><b>Shred batches.</b> A leader publishes transactions in batches of shreds, and nothing inside a batch can be decoded before its last shred. Batch boundaries are recorded from my own shred node and joined to the block, which separates a landing that reacted to the shred stream from one that cannot have, and gives the closest position a shred listener could have reached.</p></li>
+            <li><p><b>Failures.</b> Every failed transaction gets a cause read off its block — beaten, own copy, stale, nothing ahead — and a table of the wallets that got there first.</p></li>
+            <li><p><b>Leaders.</b> Which client each leader runs, where its node is, and whether any place lands closer than its clients explain, with a Wilson lower bound so a handful of landings proves nothing.</p></li>
+            <li><p>Rust workspace of eleven crates, SQLite, a Svelte UI compiled into one binary, and an MCP endpoint so an assistant can read the same data the dashboard shows.</p></li>
+          </ul>
+          <picture class="diagram-figure">
+            <img src="img/projects/SolanaAnatomy/diagrams/batches.svg" alt="A block in three leader batches: a landing in the same batch as its trigger was packed before the trigger's shreds existed; a landing in the next batch is the closest a shred listener can get" loading="lazy">
+          </picture>
+          <div class="image-grid">
+            <div class="blur-load library-pictures">
+              <img src="img/projects/SolanaAnatomy/dashboard.png" class="library-screenshot" loading="lazy" alt="Wallet dashboard: sent, landed, directly behind trigger, distance histogram, leaders and trigger flows">
+            </div>
+            <div class="blur-load library-pictures">
+              <img src="img/projects/SolanaAnatomy/block.png" class="library-screenshot" loading="lazy" alt="Block page: leader on the map, block summaries and the chart of transactions with a landing and its trigger">
+            </div>
+          </div>
+          <br>
+          <p style="text-align: center;"><a href="solanaanatomy.html" onclick="saveScrollPosition()">Full write-up: triggers, shred batches, failure causes →</a></p>
+          <br>
+        </div>
+        <hr>
+
         <div class="project-toggle-wrapper" id="lumen">
           <h3 class="name">Lumen — Solana Arb (private use only)</h3>
           <p>May 2024 — present · three major versions, the current one is a full rewrite</p>

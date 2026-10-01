@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>SolanaAnatomy — Vladyslav Hontar</title>
+    <meta name="description" content="SolanaAnatomy: a landing explorer for Solana arbitrage bots — what each transaction reacted to, how far behind it landed, and whether the leader's shred batches let it see its trigger at all.">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <p class="breadcrumb"><a href="index.html">← Back to portfolio</a></p>
+
+  <h1>SolanaAnatomy</h1>
+  <p class="tagline">What a transaction reacted to, how far behind it landed, and whether it could have seen its trigger on the wire at all — a landing explorer for Solana arbitrage</p>
+  <p class="entry-meta">Rust · axum · SQLite · tonic gRPC · Svelte 5 · MCP · Sep 2026 — in active development, private repo</p>
+
+  <div class="page-section">
+    <h2>What it is</h2>
+    <p>An arbitrage bot's result is a position in a block. An explorer will tell you that a transaction landed; it will not tell you what it was chasing, who else was chasing it, or by how many positions it lost. SolanaAnatomy reads every block a watched wallet has a transaction in and answers that for each one: what the transaction reacted to, how far behind it landed, and — when it failed — who took the opportunity first.</p>
+    <p>I built it to measure <a href="lumen.html">Lumen</a> against the bots it competes with. You add a wallet, yours or a rival's, and both get the same dashboard. That is the point: every number is read off the public chain, so a competitor is as legible as your own bot.</p>
+    <p>The part I could not get from any explorer is the last question in the title. A leader does not publish transactions one at a time, it publishes them in batches of shreds, and a transaction that sits in the same batch as the trade it appears to follow cannot have learned of that trade from the shred stream. SolanaAnatomy records those batch boundaries from my own shred node and draws them over the block.</p>
+    <figure class="clip">
+      <img data-zoom src="img/projects/SolanaAnatomy/dashboard.png" alt="Wallet dashboard: sent, landed, landed directly behind the trigger, same batch as trigger, fee paid against the trigger's fee, Jito tips; a timeline of sent, landed and directly-behind transactions; a histogram of distance to the trigger; leaders by client; the flow of the triggers" loading="lazy">
+      <figcaption>One wallet over fifteen minutes of mainnet. Sent and landed are the easy numbers; the rest of this page is about the third tile — how often it landed directly behind what it reacted to.</figcaption>
+    </figure>
+  </div>
+
+  <div class="page-section">
+    <h2>Finding the trigger</h2>
+    <p>Nothing on chain names a trigger, so it has to be inferred, and the rule is deliberately small:</p>
+    <ul>
+      <li><p>Take a successful transaction of the watched wallet and the token accounts whose balances it changed.</p></li>
+      <li><p>Drop the ones the wallet owns. What is left is the pool side: the vaults.</p></li>
+      <li><p>Walk back through the block. The nearest earlier successful transaction that moved one of those vaults is the trigger.</p></li>
+    </ul>
+    <p>The distance <code>d</code> is the landing's index minus the trigger's. <code>d = 1</code> is directly behind — the backrun position, and the only one that is certain to see the price the trigger left.</p>
+    <p>The trigger is then labelled by what kind of flow it is: the front-end or router it names (Jupiter, jup.ag, Photon, Axiom, GMGN, the pump.fun app), or <code>arbitrage</code> when the trigger itself traded in a circle. That last label matters: a trigger that is an arbitrage is usually a rival that got to the pool first, not the trade that opened the opportunity. A trigger that is the wallet's own earlier landing is flagged as well, so a bot answering itself does not count as a win.</p>
+    <figure class="clip">
+      <img data-zoom src="img/projects/SolanaAnatomy/landings.png" alt="Table of blocks the wallet landed in: slot, time, leader, index of the landing, index of the trigger, distance d, closest position reachable from shreds, visibility badge, trigger flow and fee" loading="lazy">
+      <figcaption>Every landing with its trigger. Index and trigger open a peek at the transaction without leaving the page; the slot opens the block.</figcaption>
+    </figure>
+  </div>
+
+  <div class="page-section">
+    <h2>Shred batches: what could be seen, and when</h2>
+    <p>Position alone does not say whether a bot was fast. A leader records transactions into entries, serialises a run of entries together, cuts those bytes into shreds, and flags the last shred of the run <code>DATA_COMPLETE</code>. That run is a <b>batch</b>, and it is the unit of visibility: nobody outside the leader can decode any transaction of a batch before its last shred has arrived.</p>
+    <picture class="diagram-figure">
+      <img src="img/projects/SolanaAnatomy/diagrams/batches.svg" alt="A block of eighteen transactions in three leader batches. The trigger T is at index 3 in batch 0. Landing A at index 4 is in the same batch: the leader packed it before T's shreds existed. Landing B at index 6 is the first transaction of the next batch: two transactions close T's batch, so three positions behind is the closest a shred listener can land." loading="lazy">
+    </picture>
+    <p>Once the batches are drawn, two landings that look alike stop looking alike:</p>
+    <ul>
+      <li><p><b>Same batch.</b> The leader packed the landing before the trigger's shreds existed. Whatever that transaction reacted to, it was not the shred stream — it either saw the trade some other way, or the nearest trade on the pool is not what it was answering.</p></li>
+      <li><p><b>Later batch.</b> The trigger was on the wire first, and the batch gives a floor. If <i>k</i> transactions follow the trigger inside its batch, a shred listener cannot land closer than <i>k</i> + 1 behind. The dashboard prints that number as <i>From shreds</i> next to the real <code>d</code>, so a <code>d</code> of 3 can read as “three behind, and three was the best there was”.</p></li>
+    </ul>
+
+    <h3>Recording the boundaries</h3>
+    <p>JSON-RPC <code>getBlock</code> returns transactions in order and nothing about entries or batches. That structure exists only in the shreds, so it comes from Colibri — my shred node, which joins gossip as a plain unstaked peer, receives turbine shreds, repairs the gaps and streams one gRPC message per completed batch. <code>solana-anatomy record-entries</code> follows that stream and appends one JSON line per completed slot: for every entry its batch number, its length, and the signature of its first transaction.</p>
+    <ul>
+      <li><p><b>The codec is the validator's.</b> Batches are decoded into agave's own <code>solana-entry</code> type through <code>wincode</code>, which is what they were encoded with. serde with bincode looks equivalent and loses alignment on part of mainnet's transactions.</p></li>
+      <li><p><b>A partial slot is not a slot.</b> A slot is written only when the stream marks it complete and every one of its batches decoded. A slot with a hole would shift every later index, so it is dropped rather than guessed at.</p></li>
+      <li><p><b>The join is checked, then trusted.</b> The recording and the RPC block come from two different machines. <code>Block::with_entries</code> walks the recorded entries over the block's transactions and requires each entry to start at the exact signature the recorder saw, and all of them together to cover the block exactly. One mismatch and the block stays without boundaries: the UI says <i>no boundaries</i> instead of drawing bands that might be wrong, and the CLI reports how many blocks were attached and how many refused.</p></li>
+    </ul>
+    <p class="note">The screenshots on this page come from a local run against plain RPC with no recording loaded, which is why their visibility column reads “no boundaries”.</p>
+  </div>
+
+  <div class="page-section">
+    <h2>Why a transaction failed</h2>
+    <p>A failed arbitrage is included in the block, reverts, and still pays its fee. It also leaves no balance changes, so its pools cannot be read the way a landing's are. They are read off the accounts it asked to write to instead, and the walk back is stricter: an earlier transaction counts only if it moved at least two of those accounts. A pool has two vaults; sharing one account is just a common token account.</p>
+    <div class="table-wrap">
+      <table class="bench-table">
+        <thead><tr><th>Cause</th><th>What the block shows</th></tr></thead>
+        <tbody>
+          <tr><td>Beaten</td><td>Another wallet traded the same pool within 20 positions ahead. It got there first.</td></tr>
+          <tr><td>Own copy</td><td>The wallet's own earlier transaction in the block already traded the pool. This one was a spare.</td></tr>
+          <tr><td>Stale</td><td>The pool was traded earlier in the block, but more than 20 positions ahead. What it reacted to was long gone.</td></tr>
+          <tr><td>Nothing ahead</td><td>Nothing in the block traded its pools first. It reacted to something from an earlier block.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>The 20-position reach is measured, not guessed. On busy pools some transaction has almost always traded the pool earlier in the block, and 85% of the time it is more than five positions ahead — that is traffic, not a rival. The constant is marked in the code as a stopgap: once boundaries are recorded for every block, the leader's batch replaces it.</p>
+    <p>For a transaction that was beaten the block view goes one step further and finds what the <i>winner</i> reacted to, so a loss reads as a chain: the trade, the rival directly behind it, my transaction behind the rival. Over a window the same data becomes a table of rivals — which wallets get ahead, and how often.</p>
+    <figure class="clip">
+      <img data-zoom src="img/projects/SolanaAnatomy/failures.png" alt="Failed transactions of the wallet over the window, split by cause — beaten, own copy, stale, nothing ahead — with the fees they cost, the wallets that got ahead most often and the program errors they ended with" loading="lazy">
+      <figcaption>Failures by cause, what they cost in fees, and who was ahead.</figcaption>
+    </figure>
+  </div>
+
+  <div class="page-section">
+    <h2>One block</h2>
+    <p>Every transaction of the block is a bar, left to right in block order. Height is compute units, priority fee, total fee or Jito tip. Colour says what it is: successful, Jito-tipped, failed, a vote, a landing or a failure of the watched wallet, a trigger, a rival that got ahead. Under the bars a strip marks entries that hold more than one transaction and the runs Jito landed together as one bundle, a colour per bundle — a bundle is not something the chain records, so those come from Jito's own bundle explorer. Leader batches, where they were recorded, are the bands behind everything.</p>
+    <figure class="clip">
+      <img data-zoom src="img/projects/SolanaAnatomy/block.png" alt="Block page: block info with the leader's location on a map, transaction, fee and compute-unit summaries, and the bar chart of the block's transactions with the watched wallet's landing, its trigger and Jito bundles marked" loading="lazy">
+      <figcaption>A block opened from a landing. The chart zooms to the landing (amber) and its trigger (blue), joined by a bracket, instead of showing 1,195 one-pixel bars; A marks arbitrages, the coloured strips are Jito bundles.</figcaption>
+    </figure>
+    <p>The chart is a canvas drawn by hand, because a block is a thousand-plus bars that have to follow the mouse. There is a small script in the repository that sweeps the pointer across the chart and times every move against the 16.7 ms frame budget, with and without highlights, so a slow redraw shows up as a number rather than a feeling.</p>
+    <p>Any index opens a peek over the page: who paid, what the transaction did with tokens hop by hop, and its neighbours in the block. Routes are rebuilt from the parsed inner instructions — every token transfer is filed under the program that invoked it, so a swap on a pool becomes one hop with what was paid and what came back. A transaction whose swaps end in the asset they began with is marked as an arbitrage, wrapped and native SOL counted as one asset.</p>
+    <figure class="clip">
+      <img data-zoom src="img/projects/SolanaAnatomy/peek.png" alt="Peek panel over the dashboard: one transaction with its route hop by hop — programs, amounts paid and received — and the transactions next to it in the block" loading="lazy">
+      <figcaption>A peek at the same landing: two swaps on Meteora DLMM, out of wSOL and back into it, directly behind its trigger. The panel lives in the address bar, so Back closes it, a reload keeps it and the link can be shared.</figcaption>
+    </figure>
+  </div>
+
+  <div class="page-section">
+    <h2>Which leaders, and where</h2>
+    <p>Every landing happens with a leader, and the leader decides more than the bot does. For each one SolanaAnatomy knows the client it runs, from gossip — Agave, Jito, Firedancer, Frankendancer, BAM, Harmonic — whether its TPU address points at a block-building proxy, its stake, and where its node is, from the address it gossips.</p>
+    <p>That allows one more question: is there a place where this wallet lands directly behind its trigger more often than it should? Asked naively the answer is always “wherever the Jito leaders are”, because how close a landing gets depends on the client first. So a place is compared with its own clients:</p>
+    <ul>
+      <li><p><b>Expected</b> — the share of <code>d = 1</code> landings the same clients give in every other place, in the mix they have here.</p></li>
+      <li><p><b>At the least</b> — the share observed here, taken at the lower end of the 95% Wilson interval, so that 13 of 16 does not outrank 588 of 798.</p></li>
+      <li><p><b>Excess</b> — the second minus the first. A place stands out only above zero, with at least fifty comparable landings across at least three leaders: one validator that always lands close is how that validator is set up, not a place.</p></li>
+    </ul>
+    <p>The verdict is one of strong, moderate, weak, <i>no place stands out</i>, or <i>cannot be placed</i> for a wallet that rarely lands at <code>d = 1</code> to begin with. It is an inference and a coarse one, and the page says so above the table: it names a region, not a building.</p>
+    <figure class="clip">
+      <img data-zoom src="img/projects/SolanaAnatomy/places.png" alt="Where it lands closest: places of the leaders the wallet landed with, each with its landings, the share directly behind the trigger, what its clients give elsewhere, the lower bound and the excess" loading="lazy">
+      <figcaption>Fifteen minutes is not enough to place anyone, and the page says exactly that: Frankfurt looks good at 75%, but ten comparable landings are far short of fifty, so no place stands out.</figcaption>
+    </figure>
+  </div>
+
+  <div class="page-section">
+    <h2>How it is built</h2>
+    <picture class="diagram-figure">
+      <source srcset="img/projects/SolanaAnatomy/diagrams/pipeline-dark.svg" media="(prefers-color-scheme: dark)">
+      <img src="img/projects/SolanaAnatomy/diagrams/pipeline-light.svg" alt="Two sources joined into one block: Colibri → record-entries → a boundaries file on one side; JSON-RPC → block cache → source-rpc on the other; Block::with_entries joins them, analysis matches landings and failures, the store keeps them, and one server binary answers the HTTP API, the embedded web UI and MCP" loading="lazy">
+    </picture>
+    <ul>
+      <li><p><b>Eleven crates, one direction.</b> <code>model</code> has no I/O and no Solana crates; <code>analysis</code> is pure functions over it. A block is described the same way whatever produced it, so analysis never learns where its input came from — and every rule on this page is tested on hand-built blocks of a handful of transactions, with no network anywhere near the test.</p></li>
+      <li><p><b>Keep what the node said, not what you made of it.</b> The block cache stores the node's raw <code>getBlock</code> answer, zstd-compressed in SQLite, oldest slot leaving first under a size cap. An analysis added tomorrow reads the blocks already on disk; nothing is fetched twice. Only blocks older than two minutes are kept — a younger one may still be replaced by another fork.</p></li>
+      <li><p><b>A sync that can stop.</b> History first, then every block the wallet has a transaction in, each recorded whole and for every watched wallet that appears in it. Stop it at any point and the next sync continues from where it was.</p></li>
+      <li><p><b>One file is the deployment.</b> The Svelte UI is compiled into the binary, the state is two SQLite files. It runs on the same one-gigabyte box as the live bot, and that is where its constants come from: two block readers instead of eight, because eight held <code>getBlock</code> answers at once and pinned the cgroup's memory cap; zstd level 3 instead of 9, because that is 8% more disk for 37% less CPU.</p></li>
+      <li><p><b>The dashboard as tools.</b> The server speaks the Model Context Protocol on <code>/mcp</code>: eight read-only tools over the same handlers the pages use, one of them a guide that tells the assistant how to read every field. “Why did it lose to this wallet in the last hour” becomes a question I can ask instead of a table I have to read.</p></li>
+    </ul>
+  </div>
+
+  <div class="page-section">
+    <h2>What I learned building it</h2>
+    <ul>
+      <li><p>Position is not speed. A landing directly behind its trigger looks like a win and one three behind looks like a loss, until the batches are drawn and the first turns out to be something the bot never raced for and the second the best position that existed.</p></li>
+      <li><p>A heuristic has to say that it is one. The trigger is a guess, the place is an inference, the boundaries can fail to match. Each of them has a way to answer “I do not know” — no trigger in block, cannot be placed, no boundaries — and that answer is worth more than a confident wrong one.</p></li>
+      <li><p>Measure the constant before writing it down. The reach of 20, the two workers, the compression level: each started as a guess and each has the measurement next to it in the code.</p></li>
+    </ul>
+    <p>The repository is private, for the same reason Lumen's is.</p>
+  </div>
+
+  <p class="breadcrumb"><a href="index.html">← Back to portfolio</a></p>
+
+  <script src="js/lightbox.js" defer></script>
+</body>
+</html>

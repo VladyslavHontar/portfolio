@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 320" width="880" height="320" font-family="Helvetica, Arial, sans-serif" font-size="13">
+  <!-- One block, left to right in block order. Hand-written: the theme follows
+       the OS through the media query below, so there is one file, not two. -->
+  <style>
+    .band   { fill: #f1f1f1; stroke: #5a5a5a; stroke-dasharray: 4 3; }
+    .tx     { fill: #fafafa; stroke: #5a5a5a; }
+    .entry  { stroke: #5a5a5a; stroke-width: 2; fill: none; }
+    .text   { fill: #1b1b1b; }
+    .muted  { fill: #6d6d6d; }
+    .wire   { stroke: #5a5a5a; stroke-dasharray: 2 4; }
+    .trig   { fill: #2563eb; stroke: #2563eb; }
+    .same   { fill: #dc2626; stroke: #dc2626; }
+    .later  { fill: #16a34a; stroke: #16a34a; }
+    .on     { fill: #ffffff; font-weight: bold; }
+    @media (prefers-color-scheme: dark) {
+      .band  { fill: #1b1d1f; stroke: #8b8b8b; }
+      .tx    { fill: #232628; stroke: #8b8b8b; }
+      .entry { stroke: #8b8b8b; }
+      .text  { fill: #e6e4e1; }
+      .muted { fill: #9b9b9b; }
+      .wire  { stroke: #8b8b8b; }
+    }
+  </style>
+
+  <!-- the moment batch 0 can be read off the wire -->
+  <path class="wire" d="M298 40V178"/>
+  <text class="text" x="298" y="16" text-anchor="middle">last shred of batch 0, flagged DATA_COMPLETE</text>
+  <text class="muted" x="298" y="33" text-anchor="middle" font-size="12">only now can anyone but the leader decode T</text>
+
+  <!-- batches: 0 = tx 0–5, 1 = tx 6–12, 2 = tx 13–17 -->
+  <rect class="band" x="34"  y="54" width="262" height="96" rx="8"/>
+  <rect class="band" x="300" y="54" width="304" height="96" rx="8"/>
+  <rect class="band" x="608" y="54" width="218" height="96" rx="8"/>
+  <g class="muted" font-size="12">
+    <text x="40" y="168">batch 0</text><text x="306" y="168">batch 1</text><text x="614" y="168">batch 2</text>
+  </g>
+
+  <!-- transactions, 44 px apart -->
+  <g class="tx">
+    <rect x="40"  y="70" width="34" height="34" rx="4"/><rect x="84"  y="70" width="34" height="34" rx="4"/>
+    <rect x="128" y="70" width="34" height="34" rx="4"/><rect x="260" y="70" width="34" height="34" rx="4"/>
+    <rect x="348" y="70" width="34" height="34" rx="4"/><rect x="392" y="70" width="34" height="34" rx="4"/>
+    <rect x="436" y="70" width="34" height="34" rx="4"/><rect x="480" y="70" width="34" height="34" rx="4"/>
+    <rect x="524" y="70" width="34" height="34" rx="4"/><rect x="568" y="70" width="34" height="34" rx="4"/>
+    <rect x="612" y="70" width="34" height="34" rx="4"/><rect x="656" y="70" width="34" height="34" rx="4"/>
+    <rect x="700" y="70" width="34" height="34" rx="4"/><rect x="744" y="70" width="34" height="34" rx="4"/>
+    <rect x="788" y="70" width="34" height="34" rx="4"/>
+  </g>
+  <rect class="trig"  x="172" y="70" width="34" height="34" rx="4"/>
+  <rect class="same"  x="216" y="70" width="34" height="34" rx="4"/>
+  <rect class="later" x="304" y="70" width="34" height="34" rx="4"/>
+  <g class="on" text-anchor="middle">
+    <text x="189" y="92">T</text><text x="233" y="92">A</text><text x="321" y="92">B</text>
+  </g>
+
+  <!-- entries: a bar under the transactions the leader recorded together -->
+  <g class="entry">
+    <path d="M40 116H118"/><path d="M128 116H206"/><path d="M216 116H250"/><path d="M260 116H294"/>
+    <path d="M304 116H338"/><path d="M348 116H470"/><path d="M480 116H514"/><path d="M524 116H602"/>
+    <path d="M612 116H690"/><path d="M700 116H734"/><path d="M744 116H822"/>
+  </g>
+  <g class="muted" font-size="11" text-anchor="middle">
+    <text x="57" y="136">0</text><text x="189" y="136">3</text><text x="233" y="136">4</text>
+    <text x="277" y="136">5</text><text x="321" y="136">6</text><text x="805" y="136">17</text>
+  </g>
+
+  <!-- what the two landings mean -->
+  <rect class="trig" x="40" y="200" width="14" height="14" rx="3"/>
+  <text class="text" x="64" y="212">T — the trigger: the nearest earlier trade on a pool the landing also traded</text>
+  <rect class="same" x="40" y="232" width="14" height="14" rx="3"/>
+  <text class="text" x="64" y="244">A — d = 1, same batch: packed by the leader before T’s shreds existed. Not a reaction to shreds.</text>
+  <rect class="later" x="40" y="264" width="14" height="14" rx="3"/>
+  <text class="text" x="64" y="276">B — d = 3, next batch: two transactions close T’s batch, so three behind is the closest</text>
+  <text class="text" x="64" y="294">a shred listener can land. That number is the “From shreds” column.</text>
+</svg>
