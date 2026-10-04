@@ -10,13 +10,13 @@
 <body>
   <p class="breadcrumb"><a href="index.html">← Back to portfolio</a></p>
 
-  <h1>Lumen</h1>
+  <h1>????</h1>
   <p class="tagline">Reacting to Solana transactions before the chain has confirmed them — a private SVM bank fed straight from the shred stream</p>
   <p class="entry-meta">Rust · solana-svm internals · LMDB · custom thread pipeline · 2026 — the third major version of the arb system, private repo</p>
 
   <div class="page-section">
     <h2>What it is</h2>
-    <p>Lumen is a Solana state machine that does not wait for the chain. It consumes the raw shred stream — the pre-confirmation transaction data validators gossip to each other — decodes every transaction, simulates it in an embedded SVM against a speculative copy of chain state, and reacts to the result. By the time a swap is confirmed on chain, Lumen has already priced what it did to the pool and, if that opened an opportunity, sent its own transaction.</p>
+    <p>???? is a Solana state machine that does not wait for the chain. It consumes the raw shred stream — the pre-confirmation transaction data validators gossip to each other — decodes every transaction, simulates it in an embedded SVM against a speculative copy of chain state, and reacts to the result. By the time a swap is confirmed on chain, Lumen has already priced what it did to the pool and, if that opened an opportunity, sent its own transaction.</p>
     <p>The <a href="index.html#lumen">first two versions</a> of this system read prices from an indexer and simulated through an API. Lumen replaces all of that with a bank: an LMDB-backed accounts database with a real <code>solana-svm</code> execution engine on top, so the whole loop — ingest, simulate, price, gate, sign, send — happens in one process with nothing in the hot path that talks to a network.</p>
   </div>
 
@@ -81,21 +81,11 @@
 
   <div class="page-section">
     <h2>Landing</h2>
-    <p>Simulation is only half of it; the transaction still has to reach the leader first. Lumen keeps a router over every landing service I could get access to and measures each endpoint continuously, so a transaction goes to whichever path is closest to the current leader's region. This is the live probe table from the sender router — same transaction, every provider, every region.</p>
+    <p>Simulation is only half of it; the transaction still has to reach the leader first. ???? keeps a router over every landing service I could get access to and measures each endpoint continuously, so a transaction goes to whichever path is closest to the current leader's region. This is the live probe table from the sender router — same transaction, every provider, every region.</p>
     <figure class="clip">
       <img src="img/projects/Lumen/senders-latency.jpg" alt="Latency table across landing providers and regions: Jito, Astralane, Helius, NextBlock, 0slot, Falcon, FlashBlock — Amsterdam under 1 ms, Frankfurt and London around 7 ms, US 70–130 ms" loading="lazy" style="width:100%;border-radius:8px;">
       <figcaption>Per-endpoint round-trip from the bot's box: Amsterdam providers answer in under a millisecond, Frankfurt and London in about seven, the US east coast in seventy. The router uses this to pick the sender per leader slot.</figcaption>
     </figure>
-  </div>
-
-  <div class="page-section">
-    <h2>What I learned building it</h2>
-    <ul>
-      <li><p>Rust's ownership rules stop data races, not logic races. Two threads can take perfectly safe snapshots and still compute the wrong answer; the order has to be imposed explicitly, and agave's lock table is the right model for that.</p></li>
-      <li><p>When in doubt, read the validator. Blockhash validity, lookup-table slot rules, program delay visibility — each of those was a bug in my mental model until I opened agave's source and matched it line by line.</p></li>
-      <li><p>Measure every stage separately. The first version of the scheduler hid its cost inside "queue wait"; splitting the histogram made the real number visible in a day.</p></li>
-    </ul>
-    <p>The repository is private. The on-chain program that recomputes every arbitrage before it settles is open: <a href="https://solscan.io/account/EQU1nKCRWLVNALQc3VHyhzmuZiVeJXp3gnfdAfn47Ltw">Solscan</a>.</p>
   </div>
 </body>
 </html>
