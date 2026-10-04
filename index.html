@@ -95,6 +95,33 @@
           <br>
           <p>An arbitrage system for Solana DEXes that I have been building since May 2024. It has gone through three architectures: an indexer over a self-hosted Jupiter API, then its own indexer and simulation service, and now <b>?????</b> — a shred-driven SVM bank that reacts to transactions before the chain confirms them.</p>
 
+          <h3 class="updates">v3 — (2026, current)</h3>
+          <p>The previous versions waited for state: an indexer told the bot a pool had changed, and only then could it price and act. Lumen removes the wait. It consumes the raw shred stream, simulates every relevant transaction in an embedded <code>solana-svm</code> engine against a speculative copy of chain state, and prices what that transaction did to the pool while the chain is still confirming it.</p>
+          <ul>
+            <li><p>A private bank: LMDB-backed accounts, a real SVM on top, two forks over the confirmed root in the shape of agave's own bank forks — a speculative head the hot path reads, and a pending fork where confirmed blocks are replayed and hash-verified against the network before they are promoted.</p></li>
+            <li><p>An account-lock scheduler modeled on agave's <code>AccountLocks</code> / unified scheduler: conflicting transactions simulate strictly in order, independent ones in parallel, O(accounts) per scheduling event.</p></li>
+            <li><p>Hand-built thread pipeline, no async runtime on the hot path: router, core-pinned workers, executor gate, dispatcher — each stage with its own histogram.</p></li>
+            <li><p>Chain-exact details I got wrong first and fixed by reading the validator: blockhash from the slot's last tick, lookup-table slot rules, program delay visibility.</p></li>
+            <li><p>A sender router over Jito, Astralane, Helius, NextBlock, 0slot, Falcon, FlashBlock and direct TPU, probed continuously so each transaction takes the path closest to the current leader.</p></li>
+          </ul>
+          <picture class="diagram-figure">
+            <source srcset="img/projects/Lumen/diagrams/pipeline-dark.svg" media="(prefers-color-scheme: dark)">
+            <img src="img/projects/Lumen/diagrams/pipeline-light.svg" alt="Shred stream → router (decode, ALT resolve, account-lock scheduler) → pinned workers (SVM execute against the bank, route finder over the pool registry) → executor gate → tx router by leader schedule → dispatcher with the tick-derived blockhash → senders" loading="lazy">
+          </picture>
+          <p><b>A real Raydium V4 swap simulates in about 0.2 ms p50 on the production Xeon with the x86-64 JIT.</b> The other rows are the same benchmark on an Apple M-series laptop, where only the sBPF interpreter exists — a pessimistic floor, not the real cost:</p>
+          <div class="table-wrap">
+            <table class="bench-table">
+              <thead><tr><th>Path</th><th>p50</th><th>p99</th></tr></thead>
+              <tbody>
+              <tr class="headline"><td>Raydium V4 swap — production Xeon, JIT</td><td>0.2 ms</td><td>—</td></tr>
+              <tr><td>Raydium V4 swap — laptop, interpreter (16 384 CU)</td><td>1.01 ms</td><td>1.22 ms</td></tr>
+              <tr><td>Hot path: speculative execute + bookkeeping, 200 tx / slot</td><td>0.98 ms</td><td>1.14 ms</td></tr>
+              <tr><td>System transfer (engine floor)</td><td>59 µs</td><td>110 µs</td></tr>
+              <tr><td>Account-lock scheduler, per transaction</td><td colspan="2">3.5 µs</td></tr>
+              </tbody>
+            </table>
+          </div>
+
           <div class="blur-load library-pictures">
             <img src="img/projects/Lumen/senders-latency.jpg" class="library-screenshot" loading="lazy" alt="Live latency probe across landing providers and regions">
           </div>
