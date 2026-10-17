@@ -1,0 +1,93 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 796" width="760" height="796" role="img" aria-label="Lumen benchmarks">
+  <text x="0" y="18" fill="#e6e4e1" font-size="15" font-weight="500" text-anchor="start" font-family="Geologica, Helvetica, Arial, sans-serif">One swap through the SVM, by DEX</text>
+  <text x="0" y="37" fill="#9b9b9b" font-size="12" font-weight="400" text-anchor="start" font-family="Geologica, Helvetica, Arial, sans-serif">bar: median · line: 99th percentile · on each DEX's mainnet fixture pool</text>
+  <text x="0" y="75.0" fill="#e6e4e1" font-size="13" font-weight="400" text-anchor="start" font-family="Geologica, Helvetica, Arial, sans-serif">Raydium V4 · 15 626 CU</text>
+  <path d="M262,63.0 H280.47988235294116 A4,4 0 0 1 284.47988235294116,67.0 V75.0 A4,4 0 0 1 280.47988235294116,79.0 H262 Z" fill="#4f8ff0"/>
+  <line x1="284.47988235294116" y1="71.0" x2="295.66423529411765" y2="71.0" stroke="#4f8ff0" stroke-width="2"/>
+  <line x1="295.66423529411765" y1="66.0" x2="295.66423529411765" y2="76.0" stroke="#4f8ff0" stroke-width="2"/>
+  <text x="303.66423529411765" y="75.0" fill="#e6e4e1" font-size="12" font-weight="400" text-anchor="start" font-family="Geologica, Helvetica, Arial, sans-serif">101 µs  ·  p99 151 µs</text>
+  <text x="0" y="105.0" fill="#e6e4e1" font-size="13" font-weight="400" text-anchor="start" font-family="Geologica, Helvetica, Arial, sans-serif">Raydium V4 on the hot path</text>
+  <path d="M262,93.0 H283.8374117647059 A4,4 0 0 1 287.8374117647059,97.0 V105.0 A4,4 0 0 1 283.8374117647059,109.0 H262 Z" fill="#4f8ff0"/>
+  <line x1="287.8374117647059" y1="101.0" x2="293.1961176470588" y2="101.0" stroke="#4f8ff0" stroke-width="2"/>
+  <line x1="293.1961176470588" y1="96.0" x2="293.1961176470588" y2="106.0" stroke="#4f8ff0" stroke-width="2"/>
+  <text x="301.1961176470588" y="105.0" fill="#e6e4e1" font-size="12" font-weight="400" text-anchor="start" font-family="Geologica, Helvetica, Arial, sans-serif">116 µs  ·  p99 140 µs</text>
+  <text x="0" y="135.0" fill="#e6e4e1" font-size="13" font-weight="400" text-anchor="start" font-family="Geologica, Helvetica, Arial, sans-serif">Meteora DAMM v2 · 28 647 CU</text>
+  <path d="M262,123.0 H295.5331764705882 A4,4 0 0 1 299.5331764705882,127.0 V135.0 A4,4 0 0 1 295.5331764705882,139.0 H262 Z" fill="#4f8ff0"/>
+  <line x1="299.5331764705882" y1="131.0" x2="310.69529411764705" y2="131.0" stroke="#4f8ff0" stroke-width="2"/>
+  <line x1="310.69529411764705" y1="126.0" x2="310.69529411764705" y2="136.0" stroke="#4f8ff0" stroke-width="2"/>
+  <text x="318.69529411764705" y="135.0" fill="#e6e4e1" font-size="12" font-weight="400" text-anchor="start" font-family="Geologica, Helvetica, Arial, sans-serif">169 µs  ·  p99 219 µs</text>
+  <text x="0" y="165.0" fill="#e6e4e1" font-size="13" font-weight="400" text-anchor="start" font-family="Geologica, Helvetica, Arial, sans-serif">Orca V2 · 48 563 CU</text>
+  <path d="M262,153.0 H313.944 A4,4 0 0 1 317.944,157.0 V165.0 A4,4 0 0 1 313.944,169.0 H262 Z" fill="#4f8ff0"/>
+  <line x1="317.944" y1="161.0" x2="330.26235294117646" y2="161.0" stroke="#4f8ff0" stroke-width="2"/>
+  <line x1="330.26235294117646" y1="156.0" x2="330.26235294117646" y2="166.0" stroke="#4f8ff0" stroke-width="2"/>
+  <text x="338.26235294117646" y="165.0" fill="#e6e4e1" font-size="12" font-weight="400" text-anchor="start" font-family="Geologica, Helvetica, Arial, sans-serif">252 µs  ·  p99 307 µs</text>
+  <text x="0" y="195.0" fill="#e6e4e1" font-size="13" font-weight="400" text-anchor="start" font-family="Geologica, Helvetica, Arial, sans-serif">PumpSwap · 106 189 CU</text>
+  <path d="M262,183.0 H399.90564705882355 A4,4 0 0 1 403.90564705882355,187.0 V195.0 A4,4 0 0 1 399.90564705882355,199.0 H262 Z" fill="#4f8ff0"/>
+  <line x1="403.90564705882355" y1="191.0" x2="432.58917647058826" y2="191.0" stroke="#4f8ff0" stroke-width="2"/>
+  <line x1="432.58917647058826" y1="186.0" x2="432.58917647058826" y2="196.0" stroke="#4f8ff0" stroke-width="2"/>
+  <text x="440.58917647058826" y="195.0" fill="#e6e4e1" font-size="12" font-weight="400" text-anchor="start" font-family="Geologica, Helvetica, Arial, sans-serif">638 µs  ·  p99 767 µs</text>
+  <text x="0" y="225.0" fill="#e6e4e1" font-size="13" font-weight="400" text-anchor="start" font-family="Geologica, Helvetica, Arial, sans-serif">Orca Whirlpool · 171 355 CU</text>
+  <path d="M262,213.0 H435.17082352941173 A4,4 0 0 1 439.17082352941173,217.0 V225.0 A4,4 0 0 1 435.17082352941173,229.0 H262 Z" fill="#4f8ff0"/>
+  <line x1="439.17082352941173" y1="221.0" x2="464.23" y2="221.0" stroke="#4f8ff0" stroke-width="2"/>
+  <line x1="464.23" y1="216.0" x2="464.23" y2="226.0" stroke="#4f8ff0" stroke-width="2"/>
+  <text x="472.23" y="225.0" fill="#e6e4e1" font-size="12" font-weight="400" text-anchor="start" font-family="Geologica, Helvetica, Arial, sans-serif">797 µs  ·  p99 910 µs</text>
+  <text x="0" y="255.0" fill="#e6e4e1" font-size="13" font-weight="400" text-anchor="start" font-family="Geologica, Helvetica, Arial, sans-serif">Meteora DLMM · 303 795 CU</text>
+  <path d="M262,243.0 H568.3602352941177 A4,4 0 0 1 572.3602352941177,247.0 V255.0 A4,4 0 0 1 568.3602352941177,259.0 H262 Z" fill="#4f8ff0"/>
+  <line x1="572.3602352941177" y1="251.0" x2="607.3141176470588" y2="251.0" stroke="#4f8ff0" stroke-width="2"/>
+  <line x1="607.3141176470588" y1="246.0" x2="607.3141176470588" y2="256.0" stroke="#4f8ff0" stroke-width="2"/>
+  <text x="615.3141176470588" y="255.0" fill="#e6e4e1" font-size="12" font-weight="400" text-anchor="start" font-family="Geologica, Helvetica, Arial, sans-serif">1.4 ms  ·  p99 1.6 ms</text>
+  <text x="0" y="285.0" fill="#e6e4e1" font-size="13" font-weight="400" text-anchor="start" font-family="Geologica, Helvetica, Arial, sans-serif">System transfer (the floor)</text>
+  <path d="M262,273.0 H262.50029411764706 A0.5002941176470586,0.5002941176470586 0 0 1 263.0005882352941,273.50029411764706 V288.49970588235294 A0.5002941176470586,0.5002941176470586 0 0 1 262.50029411764706,289.0 H262 Z" fill="#4f8ff0"/>
+  <line x1="263.0005882352941" y1="281.0" x2="263.2229411764706" y2="281.0" stroke="#4f8ff0" stroke-width="2"/>
+  <line x1="263.2229411764706" y1="276.0" x2="263.2229411764706" y2="286.0" stroke="#4f8ff0" stroke-width="2"/>
+  <text x="271.2229411764706" y="285.0" fill="#e6e4e1" font-size="12" font-weight="400" text-anchor="start" font-family="Geologica, Helvetica, Arial, sans-serif">4.5 µs  ·  p99 5.5 µs</text>
+  <line x1="262" y1="56" x2="262" y2="296" stroke="#2a2c2e"/>
+  <text x="0" y="330" fill="#e6e4e1" font-size="15" font-weight="500" text-anchor="start" font-family="Geologica, Helvetica, Arial, sans-serif">Swaps per second, one bank</text>
+  <text x="0" y="349" fill="#9b9b9b" font-size="12" font-weight="400" text-anchor="start" font-family="Geologica, Helvetica, Arial, sans-serif">Raydium V4 swaps on parallel threads</text>
+  <text x="0" y="387.0" fill="#e6e4e1" font-size="13" font-weight="400" text-anchor="start" font-family="Geologica, Helvetica, Arial, sans-serif">1 thread</text>
+  <path d="M262,375.0 H318.5178 A4,4 0 0 1 322.5178,379.0 V387.0 A4,4 0 0 1 318.5178,391.0 H262 Z" fill="#4f8ff0"/>
+  <text x="330.5178" y="387.0" fill="#e6e4e1" font-size="12" font-weight="400" text-anchor="start" font-family="Geologica, Helvetica, Arial, sans-serif">9 606</text>
+  <text x="0" y="417.0" fill="#e6e4e1" font-size="13" font-weight="400" text-anchor="start" font-family="Geologica, Helvetica, Arial, sans-serif">2 threads</text>
+  <path d="M262,405.0 H374.1027 A4,4 0 0 1 378.1027,409.0 V417.0 A4,4 0 0 1 374.1027,421.0 H262 Z" fill="#4f8ff0"/>
+  <text x="386.1027" y="417.0" fill="#e6e4e1" font-size="12" font-weight="400" text-anchor="start" font-family="Geologica, Helvetica, Arial, sans-serif">18 429</text>
+  <text x="0" y="447.0" fill="#e6e4e1" font-size="13" font-weight="400" text-anchor="start" font-family="Geologica, Helvetica, Arial, sans-serif">4 threads</text>
+  <path d="M262,435.0 H446.7921 A4,4 0 0 1 450.7921,439.0 V447.0 A4,4 0 0 1 446.7921,451.0 H262 Z" fill="#4f8ff0"/>
+  <text x="458.7921" y="447.0" fill="#e6e4e1" font-size="12" font-weight="400" text-anchor="start" font-family="Geologica, Helvetica, Arial, sans-serif">29 967</text>
+  <text x="0" y="477.0" fill="#e6e4e1" font-size="13" font-weight="400" text-anchor="start" font-family="Geologica, Helvetica, Arial, sans-serif">8 threads</text>
+  <path d="M262,465.0 H576.1815 A4,4 0 0 1 580.1815,469.0 V477.0 A4,4 0 0 1 576.1815,481.0 H262 Z" fill="#4f8ff0"/>
+  <text x="588.1815" y="477.0" fill="#e6e4e1" font-size="12" font-weight="400" text-anchor="start" font-family="Geologica, Helvetica, Arial, sans-serif">50 505</text>
+  <line x1="262" y1="368" x2="262" y2="488" stroke="#2a2c2e"/>
+  <text x="0" y="522" fill="#e6e4e1" font-size="15" font-weight="500" text-anchor="start" font-family="Geologica, Helvetica, Arial, sans-serif">Route search after a pool moves</text>
+  <text x="0" y="541" fill="#9b9b9b" font-size="12" font-weight="400" text-anchor="start" font-family="Geologica, Helvetica, Arial, sans-serif">median, log scale · synthetic markets of the given size</text>
+  <line x1="262.0" y1="560" x2="262.0" y2="770" stroke="#2a2c2e"/>
+  <text x="262.0" y="786" fill="#9b9b9b" font-size="11" font-weight="400" text-anchor="middle" font-family="Geologica, Helvetica, Arial, sans-serif">1 µs</text>
+  <line x1="356.5" y1="560" x2="356.5" y2="770" stroke="#2a2c2e"/>
+  <text x="356.5" y="786" fill="#9b9b9b" font-size="11" font-weight="400" text-anchor="middle" font-family="Geologica, Helvetica, Arial, sans-serif">10 µs</text>
+  <line x1="451.0" y1="560" x2="451.0" y2="770" stroke="#2a2c2e"/>
+  <text x="451.0" y="786" fill="#9b9b9b" font-size="11" font-weight="400" text-anchor="middle" font-family="Geologica, Helvetica, Arial, sans-serif">100 µs</text>
+  <line x1="545.5" y1="560" x2="545.5" y2="770" stroke="#2a2c2e"/>
+  <text x="545.5" y="786" fill="#9b9b9b" font-size="11" font-weight="400" text-anchor="middle" font-family="Geologica, Helvetica, Arial, sans-serif">1 ms</text>
+  <line x1="640.0" y1="560" x2="640.0" y2="770" stroke="#2a2c2e"/>
+  <text x="640.0" y="786" fill="#9b9b9b" font-size="11" font-weight="400" text-anchor="middle" font-family="Geologica, Helvetica, Arial, sans-serif">10 ms</text>
+  <text x="0" y="579.0" fill="#e6e4e1" font-size="13" font-weight="400" text-anchor="start" font-family="Geologica, Helvetica, Arial, sans-serif">Pair, 8 pools</text>
+  <circle cx="316.8" cy="575.0" r="5" fill="#4f8ff0"/>
+  <text x="326.7895498802886" y="579.0" fill="#e6e4e1" font-size="12" font-weight="400" text-anchor="start" font-family="Geologica, Helvetica, Arial, sans-serif">3.8 µs</text>
+  <text x="0" y="609.0" fill="#e6e4e1" font-size="13" font-weight="400" text-anchor="start" font-family="Geologica, Helvetica, Arial, sans-serif">Pair, 64 pools</text>
+  <circle cx="364.7" cy="605.0" r="5" fill="#4f8ff0"/>
+  <text x="374.6610039987637" y="609.0" fill="#e6e4e1" font-size="12" font-weight="400" text-anchor="start" font-family="Geologica, Helvetica, Arial, sans-serif">12 µs</text>
+  <text x="0" y="639.0" fill="#e6e4e1" font-size="13" font-weight="400" text-anchor="start" font-family="Geologica, Helvetica, Arial, sans-serif">Pair, 518 pools (largest on mainnet)</text>
+  <circle cx="447.5" cy="635.0" r="5" fill="#4f8ff0"/>
+  <text x="457.53331582598753" y="639.0" fill="#e6e4e1" font-size="12" font-weight="400" text-anchor="start" font-family="Geologica, Helvetica, Arial, sans-serif">92 µs</text>
+  <text x="0" y="669.0" fill="#e6e4e1" font-size="13" font-weight="400" text-anchor="start" font-family="Geologica, Helvetica, Arial, sans-serif">Triangle, 8 + 2 + 8 pools</text>
+  <circle cx="420.1" cy="665.0" r="5" fill="#4f8ff0"/>
+  <text x="430.1004757236807" y="669.0" fill="#e6e4e1" font-size="12" font-weight="400" text-anchor="start" font-family="Geologica, Helvetica, Arial, sans-serif">47 µs</text>
+  <text x="0" y="699.0" fill="#e6e4e1" font-size="13" font-weight="400" text-anchor="start" font-family="Geologica, Helvetica, Arial, sans-serif">Triangle, 64 + 8 + 64 pools</text>
+  <circle cx="509.2" cy="695.0" r="5" fill="#4f8ff0"/>
+  <text x="519.2072798815299" y="699.0" fill="#e6e4e1" font-size="12" font-weight="400" text-anchor="start" font-family="Geologica, Helvetica, Arial, sans-serif">413 µs</text>
+  <text x="0" y="729.0" fill="#e6e4e1" font-size="13" font-weight="400" text-anchor="start" font-family="Geologica, Helvetica, Arial, sans-serif">Triangle, 518 + 8 + 518 pools</text>
+  <circle cx="590.8" cy="725.0" r="5" fill="#4f8ff0"/>
+  <text x="600.7885675392859" y="729.0" fill="#e6e4e1" font-size="12" font-weight="400" text-anchor="start" font-family="Geologica, Helvetica, Arial, sans-serif">3.0 ms</text>
+  <text x="0" y="759.0" fill="#e6e4e1" font-size="13" font-weight="400" text-anchor="start" font-family="Geologica, Helvetica, Arial, sans-serif">WSOL–USDC: 14 343 triangles screened</text>
+  <circle cx="445.3" cy="755.0" r="5" fill="#4f8ff0"/>
+  <text x="455.2845693724595" y="759.0" fill="#e6e4e1" font-size="12" font-weight="400" text-anchor="start" font-family="Geologica, Helvetica, Arial, sans-serif">87 µs</text>
+</svg>
