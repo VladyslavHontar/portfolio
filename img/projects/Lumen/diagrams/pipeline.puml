@@ -41,18 +41,20 @@ package "Router — one thread" {
 
 package "Workers — pinned cores" {
   rectangle "SVM execute\nspeculative head snapshot → simulate → append" as svm
-  rectangle "Route finder\nprices on own write-set + live head" as finder
+}
+
+package "Route thread — owns the router" {
+  rectangle "Route search\nreprice moved pools · solve their markets" as finder
 }
 
 package "Executor" {
-  rectangle "Gate\nread-only simulate per candidate\ndedup by route + slot" as gate
+  rectangle "Gate\nread-only simulate per candidate\nmost profitable wins · dedup" as gate
 }
 
 rectangle "Bank\nspeculative head · engine pool · LMDB root" as bank
-rectangle "Pool registry + router graph\nready pools, token-pair edges" as graph
-rectangle "Tx router\nleader schedule → nearest sender" as txr
-rectangle "Dispatcher\nsign · tx cache" as disp
-rectangle "Senders\nJito · Astralane · Helius · NextBlock\n0slot · Falcon · FlashBlock · TPU" as senders
+rectangle "Pool registry + book\npools by token pair" as graph
+rectangle "Dispatcher\na bid per sender that reaches\nthe leader · sign" as disp
+rectangle "Senders\nJito · Astralane · Helius\n0slot · Nozomi · direct TPU" as senders
 
 shreds --> decode
 shreds --> tick
@@ -61,13 +63,12 @@ decode --> alt
 alt --> sched
 sched --> svm : locks held
 svm --> sched : locks back\nright after execute
-svm --> finder
+svm --> finder : moved pools
 finder --> gate
 svm <--> bank : snapshot head,\nappend writes
 graph --> finder
 clock -[STROKE,dashed]-> finder : skip routes\nfor stale slots
-gate --> txr
-txr --> disp
-tick -[STROKE,dashed]-> disp : blockhash
+gate --> disp
+tick -[STROKE,dashed]-> disp : blockhash\n(or durable nonce)
 disp --> senders
 @enduml

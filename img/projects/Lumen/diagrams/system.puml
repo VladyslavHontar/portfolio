@@ -43,10 +43,11 @@ cloud "Solana\nnetwork" as net
 package "Hot lane — reacts inside the slot" {
   rectangle "Shred stream\nentries before\nconfirmation" as shreds
   rectangle "Router\ndecode · ALT\naccount locks" as router
-  rectangle "Workers × N\nSVM execute\nroute finder" as workers
-  rectangle "Executor\ngate · dedup\nsender by leader" as exec
-  rectangle "Dispatcher\nsign · send" as disp
-  rectangle "Senders\nJito · Astralane · Helius\nNextBlock · 0slot · TPU …" as senders
+  rectangle "Workers × N\nSVM execute" as workers
+  rectangle "Route thread\nmarket solver" as routes
+  rectangle "Executor\ngate · dedup\nbest profit" as exec
+  rectangle "Dispatcher\nbid per sender\nsign · send" as disp
+  rectangle "Senders\nJito · Astralane · Helius\n0slot · Nozomi · TPU" as senders
 }
 
 package "Bank — one process, no network in the loop" {
@@ -57,13 +58,14 @@ package "Bank — one process, no network in the loop" {
 
 package "Confirmed lane — trails the chain by 1–2 slots" {
   rectangle "Complete blocks\nP2P lane" as blocks
-  rectangle "Replay + verify\nsame SVM, bank hash\nvs network" as replay
+  rectangle "Replay + verify\nsame SVM, bank hash\nvs leader footer" as replay
 }
 
 net --> shreds
 shreds --> router
 router --> workers
-workers --> exec
+workers --> routes
+routes --> exec
 exec --> disp
 disp --> senders
 senders --> net

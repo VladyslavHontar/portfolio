@@ -17,31 +17,32 @@
   <div class="page-section">
     <h2>What it is</h2>
     <p>???? is a Solana state machine that does not wait for the chain. It consumes the raw shred stream — the pre-confirmation transaction data validators gossip to each other — decodes every transaction, simulates it in an embedded SVM against a speculative copy of chain state, and reacts to the result. By the time a swap is confirmed on chain, Lumen has already priced what it did to the pool and, if that opened an opportunity, sent its own transaction.</p>
-    <p>The <a href="index.html#lumen">first two versions</a> of this system read prices from an indexer and simulated through an API. Lumen replaces all of that with a bank: an LMDB-backed accounts database with a real <code>solana-svm</code> execution engine on top, so the whole loop — ingest, simulate, price, gate, sign, send — happens in one process with nothing in the hot path that talks to a network.</p>
+    <p>The <a href="index.html#lumen">first two versions</a> of this system read prices from an indexer and simulated through an API. Lumen replaces all of that with a bank: an LMDB-backed accounts database with a real <code>solana-svm</code> execution engine on top, so the whole loop — ingest, simulate, price, gate, sign, send — happens in one process, and nothing between a shred arriving and a transaction leaving waits on a server.</p>
   </div>
 
   <div class="page-section">
     <h2>The whole system on one page</h2>
-    <p>One loop and one lag. The <b>hot lane</b> takes a transaction off the shred stream and, inside the same slot, simulates it, finds a route, gates it and sends its own transaction back to the network — everything in one process, nothing on that path talks to a server. The <b>confirmed lane</b> trails the chain by a slot or two: complete blocks are replayed through the same SVM, verified against the network's bank hash, and only then promoted to disk. The bank in the middle is what joins them — the hot lane reads and writes its speculative head, the confirmed lane writes its root and evicts the guesses each block supersedes.</p>
-    <p>Not drawn: boot (an agave snapshot ingested straight into LMDB, DEX pools discovered into a registry, the token-pair graph built once) and observability (a histogram per stage into Prometheus, a liveness watchdog per worker).</p>
+    <p>One loop and one lag. The <b>hot lane</b> takes a transaction off the shred stream and, inside the same slot, simulates it, finds a route, gates it and sends its own transaction back to the network — everything in one process, nothing on that path talks to a server. The <b>confirmed lane</b> trails the chain by a slot or two: complete blocks are replayed through the same SVM, checked against the bank hash the leader published for them, and only then promoted to disk. The bank in the middle is what joins them — the hot lane reads and writes its speculative head, the confirmed lane writes its root and evicts the guesses each block supersedes.</p>
+    <p>Not drawn: boot (an agave snapshot ingested straight into LMDB, DEX pools discovered into a registry) and observability (a histogram per stage into Prometheus, a liveness watchdog per worker).</p>
     <picture class="diagram-figure">
       <source srcset="img/projects/Lumen/diagrams/system-dark.svg" media="(prefers-color-scheme: dark)">
-      <img src="img/projects/Lumen/diagrams/system-light.svg" alt="Two lanes around one bank: the hot lane goes shred stream → router → workers → executor → dispatcher → senders → network within the slot; the confirmed lane goes complete blocks → replay and verify → pending fork → commit to the LMDB root, evicting superseded guesses from the speculative head" loading="lazy">
+      <img src="img/projects/Lumen/diagrams/system-light.svg" alt="Two lanes around one bank: the hot lane goes shred stream → router → workers → route thread → executor → dispatcher → senders → network within the slot; the confirmed lane goes complete blocks → replay and verify → pending fork → commit to the LMDB root, evicting superseded guesses from the speculative head" loading="lazy">
     </picture>
   </div>
 
   <div class="page-section">
     <h2>How a shred becomes a transaction</h2>
-    <p>The hot path is hand-built threads and channels, not an async runtime: a router thread, a set of workers pinned to their own cores, an executor and a dispatcher. Every stage is measured; every stage has a histogram.</p>
+    <p>The hot path is hand-built threads and channels, not an async runtime: a router thread, workers pinned to their own cores, a route thread, an executor and a dispatcher. Every stage has a histogram.</p>
     <picture class="diagram-figure">
       <source srcset="img/projects/Lumen/diagrams/pipeline-dark.svg" media="(prefers-color-scheme: dark)">
-      <img src="img/projects/Lumen/diagrams/pipeline-light.svg" alt="Shred stream → router (decode, ALT resolve, account-lock scheduler) → pinned workers (SVM execute against the bank, route finder over the pool registry) → executor gate → tx router by leader schedule → dispatcher with the tick-derived blockhash → senders" loading="lazy">
+      <img src="img/projects/Lumen/diagrams/pipeline-light.svg" alt="Shred stream → router (decode, ALT resolve, account-lock scheduler) → pinned workers (SVM execute against the bank) → route thread (reprice moved pools, solve their markets) → executor gate → dispatcher (a bid per sender that reaches the leader, tick-derived blockhash or durable nonce) → senders" loading="lazy">
     </picture>
     <ul>
       <li><p><b>Router.</b> Scans raw bytes for tracked program IDs before deserialising anything, resolves address-lookup tables with the chain's own slot rules (a table extended in this slot is not visible yet; a deactivated one is gone after its cooldown), and classifies each transaction's writable and readonly accounts.</p></li>
       <li><p><b>Account-lock scheduler.</b> The piece I am most careful about. Two workers simulating two swaps on the same pool from the same snapshot would silently corrupt the state everything downstream prices against. So transactions are dispatched only once their account locks are free, with per-address FIFO queues in the shape of agave's own <code>unified-scheduler</code>: conflicting transactions run strictly in arrival order and each sees its predecessor's writes; independent ones run in parallel; every scheduling event costs O(accounts of one transaction), not O(queue depth).</p></li>
-      <li><p><b>Workers.</b> Snapshot the speculative head, run the transaction through the SVM, append its writes, and hand the locks back immediately — route finding happens after release, priced on the transaction's own write-set so a conflicting successor cannot tear the view.</p></li>
-      <li><p><b>Executor and dispatcher.</b> Every candidate route is re-simulated read-only before it is trusted, duplicates of a route already sent this slot are dropped, the transaction is signed with a blockhash taken from the slot's last tick (the only hash the chain actually accepts), and it goes out through whichever sender is closest to the current leader.</p></li>
+      <li><p><b>Workers.</b> Run the transaction through the SVM against the speculative head, append its writes, hand the locks back, and tell the route thread which pools moved.</p></li>
+      <li><p><b>Route thread.</b> One thread owns the router. It reprices every pool a transaction moved, then solves each market the move touched — the pair itself, or a triangle through one more token — as a single optimisation, so a route can split its input across several pools. The plan comes back in the integer amounts the on-chain program will execute, priced with each DEX's own integer math.</p></li>
+      <li><p><b>Executor and dispatcher.</b> Every candidate is simulated read-only as the whole transaction before it is trusted, and the most profitable one wins; a route sent a moment ago is not sent again. The compute-unit limit is what that simulation used plus 5%. The transaction is signed with the slot's blockhash, which is the hash of its last tick, read straight off the shred stream, or with a durable nonce (see Landing).</p></li>
     </ul>
   </div>
 
@@ -54,37 +55,43 @@
     </picture>
     <ul>
       <li><p>The <b>speculative head</b> is what the hot path reads and writes: the guesses produced by simulating shreds, per slot, last writer wins.</p></li>
-      <li><p>The <b>pending fork</b> is a confirmed block being replayed by the confirmer, through the same scheduler and the same SVM. The hot path cannot see it. When the block's bank hash matches what the network attested, <code>commit_slot</code> promotes it to LMDB in one atomic batch and evicts the guesses it supersedes; if it does not match, the fork is discarded and replayed. A wrong guess therefore lives at most one confirmation lag, and disk is only ever written from deterministic replay of confirmed transactions.</p></li>
+      <li><p>The <b>pending fork</b> is a confirmed block being replayed by the confirmer, through the same scheduler and the same SVM. The hot path cannot see it. When the bank hash it arrives at matches the one the leader published, <code>commit_slot</code> promotes it to LMDB in one atomic batch and evicts the guesses it supersedes. If it does not match, the block is replayed once from scratch to rule out nondeterminism; a second mismatch stops replay and latches a halt on trading until restart — the bot never trades on state its own SVM disagrees with the chain about. A wrong guess therefore lives at most one confirmation lag, and disk is only ever written from deterministic replay of confirmed transactions.</p></li>
     </ul>
-    <p>Replay is verified against the chain the way a validator verifies itself: an accounts lt-hash folded per block, sealed into the agave bank hash, compared with the quorum-attested hash for that slot. Same-block program upgrades and lookup-table extensions stay invisible for one slot because the chain delays them — that came out of reading agave's loader rather than guessing.</p>
+    <p>Replay is verified against the chain the way a validator verifies itself: an accounts lt-hash folded per block, sealed into the agave bank hash, compared with the hash the leader puts in the block's footer (Alpenglow, SIMD-0326). Same-block program upgrades and lookup-table extensions stay invisible for one slot because the chain delays them — that came out of reading agave's loader rather than guessing.</p>
   </div>
 
   <div class="page-section">
-    <h2>How fast the SVM actually is</h2>
-    <p><b>On the production Xeon with the x86-64 JIT a real Raydium V4 swap simulates in about 0.2 ms p50.</b> The rest of the table is the same benchmark, <code>cargo bench --bench svm_sim</code>, on the real mainnet SOL/USDC pool and program bytes captured as fixtures, run on a 10-core Apple M-series laptop — which means the sBPF <i>interpreter</i> (the JIT only exists for x86-64), so those rows are roughly a 5× pessimistic floor, not the real-world cost.</p>
+    <h2>How fast it is</h2>
+    <p>Measured with <code>cargo bench --bench svm_sim</code> and <code>cargo bench --bench route_solver</code> on an Apple M1 Pro laptop (10 cores). Every swap runs on a real mainnet pool of its DEX with the program as deployed, through the sBPF <i>interpreter</i> — the JIT only exists for x86-64, so a production box runs them faster than this. The route search runs on synthetic markets of the given size.</p>
+    <picture class="diagram-figure">
+      <source srcset="img/projects/Lumen/bench/bench-dark.svg" media="(prefers-color-scheme: dark)">
+      <img src="img/projects/Lumen/bench/bench-light.svg" alt="Benchmarks. One swap through the SVM by DEX, median and 99th percentile: Raydium V4 101 and 151 µs, Raydium V4 on the hot path 116 and 140 µs, Meteora DAMM v2 169 and 219 µs, Orca V2 252 and 307 µs, PumpSwap 638 and 767 µs, Orca Whirlpool 797 and 910 µs, Meteora DLMM 1.4 and 1.6 ms, a system transfer 4.5 and 5.5 µs. Swaps per second on one bank: 9 606 on one thread, 18 429 on two, 29 967 on four, 50 505 on eight. Route search after a pool moves, median: pair of 8 pools 3.8 µs, 64 pools 12 µs, 518 pools 92 µs; triangle of 8 + 2 + 8 pools 47 µs, 64 + 8 + 64 pools 413 µs, 518 + 8 + 518 pools 3.0 ms; screening the 14 343 triangles a WSOL–USDC move touches 87 µs." loading="lazy">
+    </picture>
     <div class="table-wrap">
       <table class="bench-table">
         <thead>
           <tr><th>Path</th><th>What runs</th><th>p50</th><th>p90</th><th>p99</th></tr>
         </thead>
         <tbody>
-          <tr class="headline"><td>Raydium V4 swap — production</td><td>Xeon, x86-64 JIT, same swap, measured on the live box</td><td>0.2 ms</td><td>—</td><td>—</td></tr>
-          <tr><td>Raydium V4 swap — laptop</td><td>sanitize → load → execute, 16 384 CU, sBPF interpreter</td><td>1.01 ms</td><td>1.11 ms</td><td>1.22 ms</td></tr>
-          <tr><td>Hot path, 200 tx / slot</td><td>speculative execute: snapshot head, simulate, append, then confirm</td><td>0.98 ms</td><td>1.06 ms</td><td>1.14 ms</td></tr>
-          <tr><td>System transfer</td><td>the floor: SVM overhead with almost no BPF</td><td>59 µs</td><td>62 µs</td><td>110 µs</td></tr>
-          <tr><td>Scheduler</td><td>admit + dispatch + release, 30 accounts, 8 in flight</td><td colspan="3">3.5 µs per transaction</td></tr>
+          <tr class="headline"><td>Hot path</td><td>a Raydium V4 swap as the shred workers run it: snapshot the head, simulate, append</td><td>116 µs</td><td>127 µs</td><td>140 µs</td></tr>
+          <tr><td>Raydium V4 swap</td><td>sanitize → load → execute, 15 626 CU</td><td>101 µs</td><td>106 µs</td><td>151 µs</td></tr>
+          <tr><td>Meteora DLMM swap</td><td>the slowest DEX: 303 795 CU across its bins</td><td>1.40 ms</td><td>1.45 ms</td><td>1.55 ms</td></tr>
+          <tr><td>System transfer</td><td>the floor: SVM overhead with almost no BPF</td><td>4.5 µs</td><td>4.6 µs</td><td>5.5 µs</td></tr>
+          <tr><td>Scheduler</td><td>admit + dispatch + release, 30 accounts, 8 in flight</td><td colspan="3">3.4 µs per transaction</td></tr>
+          <tr><td>Route search, pair</td><td>518 pools, the largest pair on mainnet</td><td>92 µs</td><td>95 µs</td><td>112 µs</td></tr>
+          <tr><td>Route search, triangle</td><td>518 + 8 + 518 pools, the slowest shape measured</td><td>3.0 ms</td><td>3.1 ms</td><td>3.1 ms</td></tr>
         </tbody>
       </table>
     </div>
-    <p>The hot-path row is the one that matters: a full speculative execute with the bookkeeping around it costs no more than the bare simulation, so the scheduler and the bank add nothing measurable on top of the SVM. Throughput on the laptop scales from 960 to 2 770 swaps/s across eight threads — sub-linear, which points at a shared program-cache lock inside the SVM as the next thing to profile.</p>
+    <p>A swap costs about what its program spends in compute units: from 0.1 ms on Raydium V4 to 1.4 ms on Meteora DLMM, whose swap walks bins. The hot path costs about 15 µs over the bare Raydium swap: that is the speculative head around the same simulation. One bank goes from 9 606 to 50 505 swaps a second on eight threads, 5.3×; each thread takes its own SVM engine from a pool, so nothing is locked per transaction. On the routing side a move of the largest pair on mainnet is searched in under 0.1 ms; the expensive case is a triangle between two very deep pairs, about 3 ms. A WSOL–USDC move touches 14 343 triangles, and setting aside the ones with nothing to trade takes 87 µs.</p>
   </div>
 
   <div class="page-section">
     <h2>Landing</h2>
-    <p>Simulation is only half of it; the transaction still has to reach the leader first. ???? keeps a router over every landing service I could get access to and measures each endpoint continuously, so a transaction goes to whichever path is closest to the current leader's region. This is the live probe table from the sender router — same transaction, every provider, every region.</p>
+    <p>Simulation is only half of it; the transaction still has to reach the leader first. ???? sends through several landing services at once. For each leader slot, every service that can reach that leader — Astralane only for Harmonic leaders, a direct TPU connection only for validators I have a deal with — makes its own bid, priced from how the most successful rival bot pays. With a pool of durable nonces each service gets its own copy of the transaction on the same nonce: they race, the first to land wins, and the nonce makes every other copy invalid and unpaid. The probe below sent the same transaction to every provider in every region.</p>
     <figure class="clip">
       <img src="img/projects/Lumen/senders-latency.jpg" alt="Latency table across landing providers and regions: Jito, Astralane, Helius, NextBlock, 0slot, Falcon, FlashBlock — Amsterdam under 1 ms, Frankfurt and London around 7 ms, US 70–130 ms" loading="lazy" style="width:100%;border-radius:8px;">
-      <figcaption>Per-endpoint round-trip from the bot's box: Amsterdam providers answer in under a millisecond, Frankfurt and London in about seven, the US east coast in seventy. The router uses this to pick the sender per leader slot.</figcaption>
+      <figcaption>Per-endpoint round-trip from the bot's box: Amsterdam providers answer in under a millisecond, Frankfurt and London in about seven, the US east coast in seventy.</figcaption>
     </figure>
   </div>
 </body>

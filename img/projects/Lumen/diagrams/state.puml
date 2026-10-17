@@ -50,8 +50,9 @@ confirmer --> pending : replay_tx
 pending --> root : commit_slot\none atomic batch
 pending -[STROKE,dashed]-> specN : evicts superseded\nguesses on commit
 note bottom of pending
-  bank hash verified against
-  the network before commit;
-  mismatch = discard + replay
+  bank hash checked against the
+  leader's block footer before commit;
+  mismatch: replay once, then halt
+  and stop trading
 end note
 @enduml
